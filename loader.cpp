@@ -3,6 +3,7 @@
 #include "Debug.h"
 #include "IPMTC.h"
 #include "KTNS.h"
+#include <locale.h>
 
 using namespace std;
 
@@ -50,6 +51,7 @@ void readFile(){
 }
 
 int main (){
+    setlocale(LC_ALL, "Portuguese");
     readFile();
     
     Debug debug;
@@ -59,12 +61,10 @@ int main (){
     vector <vector <int>> solucao = ipmtc.gerarSolucao();
 
     debug.printSolucao(solucao);
-    int trocas = 0;
-    for (int i = 0; i < solucao.size(); i++){
-        trocas = KTNS(solucao[i]);
 
-        cout << "Quantidade de trocas na máquina: " << i << " é " << trocas << endl;
-    }
+    double makespan = ipmtc.funcaoAvaliativa(solucao);
+
+    cout << "O makespan é de " << makespan << endl;
 
 
     return 0;

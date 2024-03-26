@@ -68,10 +68,20 @@ bool isCarregada(vector <int> magazine,int ferramenta){
 bool isNecessaria(vector <int> magazine,int ferramenta_necessaria){
     for (int i = 0; i< magazine.size(); i++){
         if(magazine[i] == ferramenta_necessaria){
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
+}
+
+//Verifica se a ferramenta é necessaria para a conclusão do conjunto de ferramentas necessarias
+bool isCadidataNecessaria(int ferramenta_magazine, vector <int> ferramentas_necessaria){
+    for (int i = 0 ; i < ferramentas_necessaria.size() ; i++){
+        if(ferramentas_necessaria[i] == ferramenta_magazine){
+            return true;
+        }
+    }
+    return false;
 }
 
 //Retorna a ferramenta com maior prioridade dentro de um conjunto de candidatos
@@ -98,10 +108,10 @@ int getBaixaPrioridade (vector <int> magazine,vector <int> ferramentas_necessari
     int ferramenta= magazine[0];
     for (int i = 0; i< magazine.size(); i++){
         for (int j = 0 ; j < ferramentas_necessarias.size(); j++){
-            if(tempPriority >= ferramenta_prioridade[magazine[i]] && isNecessaria(magazine,ferramentas_necessarias[j]) ){
+            if(tempPriority >= ferramenta_prioridade[magazine[i]] && !isCadidataNecessaria(magazine[i],ferramentas_necessarias) ){
                 tempPriority = ferramenta_prioridade[magazine[i]];
                 ferramenta = magazine[i];
-            }
+            } 
         }
     }
 
@@ -246,7 +256,6 @@ int KTNS(vector <int> maquina_carregada){
             trocaMagazine(magazine,i);
         }   
     }
-
     return trocas;
 }
 
