@@ -63,7 +63,7 @@ public:
     void printSolucao(vector <vector <int>> solucao){
         cout << "Solução Gerada:" << endl;
 
-        for(int i = 0; i < m; i++){
+        for(int i = 0; i < solucao.size(); i++){
             for (int j = 0; j < solucao[i].size(); j++){
                 cout << solucao[i][j] << ' ';
             }

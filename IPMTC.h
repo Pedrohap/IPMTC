@@ -5,6 +5,8 @@
 #include <vector>
 #include "KTNS.h"
 
+#include "Utilities.h"
+
 using namespace std;
 
 extern int w;
@@ -22,12 +24,12 @@ public:
 
     vector < vector <int> > gerarSolucao(){
         //Implementar uma heuristica aqui
-
-        //Solução mokada para para o KTNS baseada no easyInput
+        //Famosa Heuristica TDC;
         vector <vector <int>> solucao(m,vector <int>());
 
-        solucao[0] = {0, 4, 6, 7};
-        solucao[1] = {1, 2, 3, 5};
+        for(int i = 0; i < w; i++){
+            solucao[randomInt(0,m)].push_back(i);
+        }
 
         return solucao;
     }

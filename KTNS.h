@@ -177,6 +177,9 @@ void trocaMagazine(vector <int>& magazine, int ordem_da_tarefa_na_maquina){
     //DEBUG
     if (isProcessavel(magazine,ordem_da_tarefa_na_maquina)){
         cout << "TAREFA " <<  ordem_da_tarefa_na_maquina << " PODE SER EXECUTADA" << endl;
+    } else {
+        cout << "ERRO FATAL A MÁQUINA NÃO TEM TODAS AS FERRAMENTAS NECESSÁRIAS!" << endl;
+        exit(EXIT_FAILURE);
     }
     debugPrintMagazine(magazine);
     cout << "-----------------------------------------------------" << endl;
@@ -192,11 +195,9 @@ int KTNS(vector <int> maquina_carregada){
 
     //Definir a prioridade das ferramentas
     ferramenta_prioridade.assign(t,0);
-
     for (int i = 0 ; i < ferramentas_utilizadas.size() ; i++){
         ferramenta_prioridade[ferramentas_utilizadas[i]] ++;
     }
-
     for (int i = 0 ; i < quantidade_tarefas ; i++){
         if (i == 0){
             //Carga inicial de todas as ferramentas necessarias e perda de 1 ponto em prioridade
@@ -206,47 +207,50 @@ int KTNS(vector <int> maquina_carregada){
             }
             
             //Se o magazine não estiver cheio, adicionar ferramentas para completar baseado nas tarefas subsequentes
-            int temp = 0;
-            while (magazine.size() < c){
-                temp++;
-                vector <int> candidatos;
-                for (int j = 0; j < matriz_de_ferramentas_necessarias[i].size() ; j++){
-                    //Verifica se a ferramenta já esta carregada no magazine e busca candidatos a incerção
-                    if(!isCarregada(magazine,matriz_de_ferramentas_necessarias[temp][j])){
-                        //ferramenta encontrada q não está no magazine, adicionar em uma lista de candidatos e escolher a que tiver
-                        //maior prioridade
-                        candidatos.push_back( matriz_de_ferramentas_necessarias[temp][j]);
-
-                        //magazine.push_back(matriz_de_ferramentas_necessarias[temp][j]);
-                    }
-                }
-                
-                if (candidatos.size() == 0){
-                    //não houve candidatos
-                }
-                //Se todos os candidatos cabem no magazine, insira todos
-                else if ((magazine.size() + candidatos.size()) <= c){
-                    for (int j = 0 ; j < candidatos.size(); j++){
-                        magazine.push_back(candidatos[j]);
-                    }
-                } 
-                //Tem mais cadidatos que espaço no magazine, insere até lotar
-                else {
-                    int espaco_disponivel = c - magazine.size();
-
-                    for(int j = 0; j < espaco_disponivel ; j++){
-                        int melhor_candidato = getAltaPrioridade(candidatos);
-                        magazine.push_back(melhor_candidato);
-                        ferramenta_prioridade[melhor_candidato]--;
-                    }
-                }
-                if ((temp + 1) >=  matriz_de_ferramentas_necessarias[i].size()){
-                    //Não tem mais tarefas ou não é mais necessario adicionar ferramentas
-                    break;
-                } else {
+            if (maquina_carregada.size() > 1){
+                int temp = 0;
+                while (magazine.size() < c){
                     temp++;
+                    vector <int> candidatos;
+                    for (int j = 0; j < matriz_de_ferramentas_necessarias[i].size() ; j++){
+                        //Verifica se a ferramenta já esta carregada no magazine e busca candidatos a incerção
+                        if(!isCarregada(magazine,matriz_de_ferramentas_necessarias[temp][j])){
+                            //ferramenta encontrada q não está no magazine, adicionar em uma lista de candidatos e escolher a que tiver
+                            //maior prioridade
+                            candidatos.push_back( matriz_de_ferramentas_necessarias[temp][j]);
+
+                            //magazine.push_back(matriz_de_ferramentas_necessarias[temp][j]);
+                        }
+                    }
+                    if (candidatos.size() == 0){
+                        break;
+                        //não houve candidatos
+                    }
+                    //Se todos os candidatos cabem no magazine, insira todos
+                    else if ((magazine.size() + candidatos.size()) <= c){
+                        for (int j = 0 ; j < candidatos.size(); j++){
+                            magazine.push_back(candidatos[j]);
+                        }
+                    } 
+                    //Tem mais cadidatos que espaço no magazine, insere até lotar
+                    else {
+                        int espaco_disponivel = c - magazine.size();
+
+                        for(int j = 0; j < espaco_disponivel ; j++){
+                            int melhor_candidato = getAltaPrioridade(candidatos);
+                            magazine.push_back(melhor_candidato);
+                            ferramenta_prioridade[melhor_candidato]--;
+                        }
+                    }
+                    if ((temp + 1) >=  matriz_de_ferramentas_necessarias[i].size()){
+                        //Não tem mais tarefas ou não é mais necessario adicionar ferramentas
+                        break;
+                    } else {
+                        temp++;
+                    }
                 }
             }
+            
         }
 
 
