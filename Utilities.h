@@ -18,4 +18,14 @@ int randomInt(int min, int max){
     return random_number;
 }
 
+void debugPrintMatriz(string menssagem, vector <vector <int>> matriz){
+    cout << menssagem << endl;
+    for(int i = 0; i < matriz.size(); i++){
+        for(int j = 0; j < matriz[i].size(); j++){
+            cout << matriz[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
 #endif

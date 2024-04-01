@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include "Utilities.h"
 
 using namespace std;
 
@@ -23,6 +24,8 @@ vector <vector <int>> matriz_de_ferramentas_necessarias;
 //quantidade de trocas na maquina_carregada
 int trocas;
 
+
+
 void debugPrintMagazine(vector <int> magazine){
     cout << "Magaize atual: ";
     for(int i = 0; i < magazine.size(); i++){
@@ -31,10 +34,17 @@ void debugPrintMagazine(vector <int> magazine){
     cout << endl;
 }
 
+void debugPrintFerramentsNecessarias(int ordem_da_tarefa_na_maquina){
+    cout << "NECESSÁRIO PARA A CONCLUSÃO:" << endl;
+    for (int i = 0 ; i < matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina].size();i++){
+        cout << matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i] << " ";
+    }
+    cout << endl;
+}
+
 //Retorna uma Matriz com as ferramentas necessaria para a conclusão para um conjuento de tarefas especifico
 vector <vector <int>> getMatrizDeFerramentasNecessarias(vector <int> maquina_carregada){
     matriz_de_ferramentas_necessarias.assign(maquina_carregada.size(),vector <int>());
-
     for (int x = 0; x < maquina_carregada.size(); x++){
         for (int i = 0; i < t; i++){
             if(matriz_ferramentas[i][maquina_carregada[x]] == 1){
@@ -142,7 +152,7 @@ void trocaMagazine(vector <int>& magazine, int ordem_da_tarefa_na_maquina){
     //DEBUG
     debugPrintMagazine(magazine);
 
-    cout << "FAlTA AS FERRAMENTAS: ";
+    cout << "FALTA AS FERRAMENTAS: ";
 
     for (int i = 0 ; i < matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina].size();i++){
 
@@ -179,6 +189,8 @@ void trocaMagazine(vector <int>& magazine, int ordem_da_tarefa_na_maquina){
         cout << "TAREFA " <<  ordem_da_tarefa_na_maquina << " PODE SER EXECUTADA" << endl;
     } else {
         cout << "ERRO FATAL A MÁQUINA NÃO TEM TODAS AS FERRAMENTAS NECESSÁRIAS!" << endl;
+        debugPrintMagazine(magazine);
+        debugPrintFerramentsNecessarias(ordem_da_tarefa_na_maquina);
         exit(EXIT_FAILURE);
     }
     debugPrintMagazine(magazine);
@@ -200,57 +212,70 @@ int KTNS(vector <int> maquina_carregada){
     }
     for (int i = 0 ; i < quantidade_tarefas ; i++){
         if (i == 0){
+            cout << "CARGA INICIAL" << endl;
+
             //Carga inicial de todas as ferramentas necessarias e perda de 1 ponto em prioridade
             for (int j = 0; j < matriz_de_ferramentas_necessarias[i].size() ; j++){
                 magazine.push_back(matriz_de_ferramentas_necessarias[i][j]);
                 ferramenta_prioridade[matriz_de_ferramentas_necessarias[i][j]]--;
             }
-            
             //Se o magazine não estiver cheio, adicionar ferramentas para completar baseado nas tarefas subsequentes
             if (maquina_carregada.size() > 1){
                 int temp = 0;
-                while (magazine.size() < c){
+
+                while (magazine.size() <c) {
                     temp++;
+                    if(temp >= matriz_de_ferramentas_necessarias.size()){
+                        break;
+                    }
                     vector <int> candidatos;
-                    for (int j = 0; j < matriz_de_ferramentas_necessarias[i].size() ; j++){
+                    debugPrintMagazine(magazine);
+                    debugPrintMatriz("A matriz de ferramentas necessárias é:",  matriz_de_ferramentas_necessarias);
+                    cout << "CADIDATOS INICIAS: " << endl;
+
+
+                    for (int j = 0; j < matriz_de_ferramentas_necessarias[temp].size() ; j++){
                         //Verifica se a ferramenta já esta carregada no magazine e busca candidatos a incerção
+
                         if(!isCarregada(magazine,matriz_de_ferramentas_necessarias[temp][j])){
                             //ferramenta encontrada q não está no magazine, adicionar em uma lista de candidatos e escolher a que tiver
                             //maior prioridade
                             candidatos.push_back( matriz_de_ferramentas_necessarias[temp][j]);
-
-                            //magazine.push_back(matriz_de_ferramentas_necessarias[temp][j]);
+                            cout << matriz_de_ferramentas_necessarias[temp][j] << " ";
                         }
                     }
-                    if (candidatos.size() == 0){
-                        break;
-                        //não houve candidatos
-                    }
+                    cout << endl;
+
                     //Se todos os candidatos cabem no magazine, insira todos
-                    else if ((magazine.size() + candidatos.size()) <= c){
+                    if ((magazine.size() + candidatos.size()) <= c && (candidatos.size() != 0)){
                         for (int j = 0 ; j < candidatos.size(); j++){
                             magazine.push_back(candidatos[j]);
                         }
                     } 
                     //Tem mais cadidatos que espaço no magazine, insere até lotar
-                    else {
+                    else if (!candidatos.empty()){
+                        
                         int espaco_disponivel = c - magazine.size();
 
                         for(int j = 0; j < espaco_disponivel ; j++){
                             int melhor_candidato = getAltaPrioridade(candidatos);
+
+                            cout << "ADICIONEI " << melhor_candidato << endl;
+                            
                             magazine.push_back(melhor_candidato);
+
+                            candidatos.erase(remove(candidatos.begin(), candidatos.end(), melhor_candidato), candidatos.end());
+
                             ferramenta_prioridade[melhor_candidato]--;
                         }
                     }
-                    if ((temp + 1) >=  matriz_de_ferramentas_necessarias[i].size()){
-                        //Não tem mais tarefas ou não é mais necessario adicionar ferramentas
-                        break;
-                    } else {
-                        temp++;
-                    }
                 }
             }
-            
+            cout << "MAGAZINE INICIAL" << endl;
+            debugPrintMagazine(magazine);
+            cout << "O TAMANHO DO MAGAZINE FOI: " << magazine.size() << endl;
+            cout << "-----------------------------------------------------" << endl;
+
         }
 
 

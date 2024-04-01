@@ -58,13 +58,19 @@ int main (){
     IPMTC ipmtc;
 
     debug.printEntrada();
-    vector <vector <int>> solucao = ipmtc.gerarSolucao();
 
-    debug.printSolucao(solucao);
 
-    double makespan = ipmtc.funcaoAvaliativa(solucao);
+    //for (int i = 0 ; i < 10000; i++){
 
-    cout << "O makespan é de " << makespan << endl;
+        vector <vector <int>> solucao = ipmtc.gerarSolucao();
+
+        double makespan = ipmtc.funcaoAvaliativa(solucao);
+        debug.printSolucao(solucao);
+
+        cout << "O makespan é de " << makespan << endl;
+    //}
+
+
 
 
     return 0;
