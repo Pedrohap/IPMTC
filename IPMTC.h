@@ -109,13 +109,53 @@ public:
         return menorMaquinaTempo;
     }
 
+    //Retorna a maquina com o maior tempo de processamento
+    int getMaiorMaquina(vector <vector <int>> solucao){
+        vector <double> tempoMaquinas(m,0);
+        vector <int> trocaMaquinas(m,0);
+
+        for (int i = 0; i < solucao.size(); i++){
+            trocaMaquinas[i] = KTNS(solucao[i]);
+
+            for (int j = 0; j < solucao[i].size() ; j++){
+                tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
+            }
+            tempoMaquinas[i] += (trocaMaquinas[i] * p);
+        }
+        int maiorTempoMaquina = tempoMaquinas[0];
+        int maiorMaquinaTempo = 0;
+        for (int i = 1; i < solucao.size(); i++){
+            if(maiorTempoMaquina < tempoMaquinas[i]){
+                maiorTempoMaquina = tempoMaquinas[i];
+                maiorMaquinaTempo = i;
+            }
+        }
+
+        return maiorMaquinaTempo;
+    }
+
     int getTempoSolucaoComAdd(vector <int> solucaoDaMaquina, int novaTarefa){
         vector <int> tempVec = solucaoDaMaquina;
         tempVec.push_back(novaTarefa);
         return getTempoUnico(tempVec);
     }
 
+    int getPosMenorElementoVector(vector <int> vetor){
+        // Encontra o iterador para o menor elemento no vetor
+        auto menor_elemento = min_element(vetor.begin(), vetor.end());
+        
+        // Calcula a posição do menor elemento
+        int posicao = distance(vetor.begin(), menor_elemento);
+
+        return posicao;
+    }
+
     void etapaDeRefinamento(vector <vector <int>> solucao){
+        vector < vector <int> > solucao_marcada(m,vector <int>());
+
+        //Nova solucao que sera alterada durante a etapa de refinamento
+        vector < vector <int> > nova_solucao = solucao;
+
         //Etapa de refinamento
 
         //Bloco = conjunto sequencial de tarefas sem trocas de ferramentas no magazine.
@@ -125,10 +165,32 @@ public:
 
         //Gerando uma solução marcada
         for (int i = 0; i < m; i++){
-            solucao[i] = KTNSMarcandoTrocas(solucao[i]);
+            solucao_marcada[i] = KTNSMarcandoTrocas(solucao[i]);
         }
 
         debugPrintMatriz("Matriz de solucao com trocas marcadas", solucao);
+
+        //Agora que temos o vetor marcado, procurar a posição com o menor valor
+        int maquina_critica = getMaiorMaquina(solucao);
+
+        //Pegar o bloco iniciado com maior numero de trocas:
+        int inicio_bloco = getPosMenorElementoVector(solucao_marcada[maquina_critica]);
+
+        //Preencher um vetor com todo o bloco até a troca
+        vector <int> bloco;
+        int ponteiro_marcado = inicio_bloco+1;
+        while (solucao_marcada[maquina_critica][ponteiro_marcado] < 0){
+            bloco.push_back(solucao_marcada[maquina_critica][ponteiro_marcado]);
+            removeDoVector(nova_solucao[maquina_critica],solucao_marcada[maquina_critica][ponteiro_marcado]);
+            ponteiro_marcado++;
+        }
+
+        int maquina_folgada = getMenorMaquina(solucao);
+        
+        for (int i = 0 ; i < bloco.size(); i++){
+            nova_solucao[maquina_folgada].push_back(bloco[i]);
+        }
+        
     }
 
     vector < vector <int> > gerarSolucao(){

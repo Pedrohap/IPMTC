@@ -289,7 +289,7 @@ int KTNS(vector <int> maquina_carregada){
 }
 
 //Retorna a trocas no magazine Marcando elas na solução com '-1'
-void trocaMagazineMarcandoTrocas(vector <int>& magazine, int ordem_da_tarefa_na_maquina,vector <int>& maquina_carregada){
+void trocaMagazineMarcandoTrocas(vector <int>& magazine, int ordem_da_tarefa_na_maquina,vector <int>& maquina_com_trocas,vector<int> solucao_maquina){
     //Verificar quem está faltando no magazine
     vector <int> ferramenta_faltando;
  
@@ -320,19 +320,24 @@ void trocaMagazineMarcandoTrocas(vector <int>& magazine, int ordem_da_tarefa_na_
         //ferramenta_prioridade[ferramenta_faltando[i]]--;
         //trocas++;
     }
-
+    int cont_trocas = 0 ;
     for(int i = 0; i < ferramenta_faltando.size() ; i++){
 
         magazine.push_back(ferramenta_faltando[i]);
         ferramenta_prioridade[ferramenta_faltando[i]]--;
 
-        maquina_carregada.insert(maquina_carregada.begin() + ordem_da_tarefa_na_maquina + 1, -1 );
+        cont_trocas++;
         trocas++;
+    }
+
+    if (cont_trocas>0){
+        maquina_com_trocas.push_back(-1*cont_trocas);
     }
 
     //DEBUG
     if (isProcessavel(magazine,ordem_da_tarefa_na_maquina)){
         cout << "TAREFA " <<  ordem_da_tarefa_na_maquina << " PODE SER EXECUTADA" << endl;
+         maquina_com_trocas.push_back(solucao_maquina[ordem_da_tarefa_na_maquina]);
     } else {
         cout << "ERRO FATAL A MÁQUINA NÃO TEM TODAS AS FERRAMENTAS NECESSÁRIAS!" << endl;
         debugPrintMagazine(magazine);
@@ -349,6 +354,8 @@ vector <int> KTNSMarcandoTrocas(vector <int> maquina_carregada){
     int quantidade_tarefas = maquina_carregada.size();
     trocas = 0;
 
+    vector <int> maquina_com_trocas;
+
     vector <vector <int>> matriz_de_ferramentas_necessarias = getMatrizDeFerramentasNecessarias(maquina_carregada);
     vector <int> magazine;
 
@@ -360,6 +367,8 @@ vector <int> KTNSMarcandoTrocas(vector <int> maquina_carregada){
     for (int i = 0 ; i < quantidade_tarefas ; i++){
         if (i == 0){
             cout << "CARGA INICIAL" << endl;
+
+            maquina_com_trocas.push_back(maquina_carregada[i]);
 
             //Carga inicial de todas as ferramentas necessarias e perda de 1 ponto em prioridade
             for (int j = 0; j < matriz_de_ferramentas_necessarias[i].size() ; j++){
@@ -429,10 +438,10 @@ vector <int> KTNSMarcandoTrocas(vector <int> maquina_carregada){
         //Verificar se as ferramentas necessaria para a prox tarefa estão carregadas
         //Se a tarefa não é possivel de ser processada, precisa realizar trocas
         if(!isProcessavel(magazine,i)){
-            trocaMagazineMarcandoTrocas(magazine,i,maquina_carregada);
+            trocaMagazineMarcandoTrocas(magazine,i,maquina_com_trocas,maquina_carregada);
         }   
     }
-    return maquina_carregada;
+    return maquina_com_trocas;
 }
 
 

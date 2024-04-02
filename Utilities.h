@@ -4,6 +4,7 @@
 #include <iostream>
 #include <random>
 
+
 using namespace std;
 
 int randomInt(int min, int max){
@@ -25,6 +26,15 @@ void debugPrintMatriz(string menssagem, vector <vector <int>> matriz){
             cout << matriz[i][j] << " ";
         }
         cout << endl;
+    }
+}
+
+void removeDoVector (vector <int>& vetor, int element){
+    auto itinerator = find(vetor.begin(), vetor.end(), element);
+    if (itinerator != vetor.end()){
+        vetor.erase(itinerator);
+    } else {
+        cout << "ELEMENTO NÃO ENCONTRADO" << endl;
     }
 }
 
