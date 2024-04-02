@@ -115,6 +115,22 @@ public:
         return getTempoUnico(tempVec);
     }
 
+    void etapaDeRefinamento(vector <vector <int>> solucao){
+        //Etapa de refinamento
+
+        //Bloco = conjunto sequencial de tarefas sem trocas de ferramentas no magazine.
+        //1,2,3, XX 4,5, X 6, X 7
+        //Pegar a pior máquina (critica), pegar o bloco iniciado no maior número e troca de 
+        //ferramentas e mover o bloco para a máquina com o menor tempo de processamento.
+
+        //Gerando uma solução marcada
+        for (int i = 0; i < m; i++){
+            solucao[i] = KTNSMarcandoTrocas(solucao[i]);
+        }
+
+        debugPrintMatriz("Matriz de solucao com trocas marcadas", solucao);
+    }
+
     vector < vector <int> > gerarSolucao(){
         //Implementar uma heuristica aqui
         vector <vector <int>> solucao(m,vector <int>());
@@ -162,6 +178,9 @@ public:
             solucao[menorMaquina].push_back(get<0>(tempo_quantidade_tarefas[melhorTarefa]));
             removePosVectorTuple(tempo_quantidade_tarefas,melhorTarefa);
         }
+
+        etapaDeRefinamento(solucao);
+
         /*//Famosa Heuristica TDC;
 
         for(int i = 0; i < w; i++){
