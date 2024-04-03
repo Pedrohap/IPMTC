@@ -19,7 +19,7 @@ int randomInt(int min, int max){
     return random_number;
 }
 
-void debugPrintMatriz(string menssagem, vector <vector <int>> matriz){
+void debugPrintMatriz(string menssagem, vector <vector <int>>& matriz){
     cout << menssagem << endl;
     for(int i = 0; i < matriz.size(); i++){
         for(int j = 0; j < matriz[i].size(); j++){
@@ -30,12 +30,30 @@ void debugPrintMatriz(string menssagem, vector <vector <int>> matriz){
 }
 
 void removeDoVector (vector <int>& vetor, int element){
-    auto itinerator = find(vetor.begin(), vetor.end(), element);
-    if (itinerator != vetor.end()){
-        vetor.erase(itinerator);
+    auto iterator = find(vetor.begin(), vetor.end(), element);
+    if (iterator != vetor.end()){
+        vetor.erase(iterator);
     } else {
         cout << "ELEMENTO NÃO ENCONTRADO" << endl;
     }
+}
+
+int getPosElementoVector(vector <int>& vetor,int elemento){
+
+    auto iterator = find(vetor.begin(), vetor.end(), elemento);
+
+    if (iterator != vetor.end()) {
+        int posicao = distance(vetor.begin(),iterator);
+        
+        return posicao;
+    } else {
+        return -1;
+    }
+}
+
+//Função EXCLUSIVA para ordernar um pair baseado em seu segundo valor
+bool sortBySecond(const pair<int, int> &a, const pair<int, int> &b) {
+    return a.second < b.second;
 }
 
 #endif

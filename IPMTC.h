@@ -134,13 +134,29 @@ public:
         return maiorMaquinaTempo;
     }
 
+    //Retorna um vetor ordenardo com todos elementos negativos (trocas) de uma solução, onde first é posição
+    //second o valor
+    vector <pair <int,int>> getElementosNegativos(vector <int>& solucaoDaMaquina){
+        vector <pair <int,int>> elementosNegativos;
+        for (int i = 0 ; i < solucaoDaMaquina.size(); i++){
+            if (solucaoDaMaquina[i] < 0){
+                elementosNegativos.push_back(pair <int,int>(i,solucaoDaMaquina[i]));
+            }
+        }
+
+        //Ordena o vetor de pais em ordem crescente baseado no valor
+        sort(elementosNegativos.begin(), elementosNegativos.end(), sortBySecond);
+
+        return elementosNegativos;
+    }
+
     int getTempoSolucaoComAdd(vector <int> solucaoDaMaquina, int novaTarefa){
         vector <int> tempVec = solucaoDaMaquina;
         tempVec.push_back(novaTarefa);
         return getTempoUnico(tempVec);
     }
 
-    int getPosMenorElementoVector(vector <int> vetor){
+    int getPosMenorElementoVector(vector <int>& vetor){
         // Encontra o iterador para o menor elemento no vetor
         auto menor_elemento = min_element(vetor.begin(), vetor.end());
         
@@ -150,7 +166,7 @@ public:
         return posicao;
     }
 
-    void etapaDeRefinamento(vector <vector <int>> solucao){
+    vector < vector <int> > etapaDeRefinamento(vector <vector <int>> solucao){
         vector < vector <int> > solucao_marcada(m,vector <int>());
 
         //Nova solucao que sera alterada durante a etapa de refinamento
@@ -168,32 +184,47 @@ public:
             solucao_marcada[i] = KTNSMarcandoTrocas(solucao[i]);
         }
 
-        debugPrintMatriz("Matriz de solucao com trocas marcadas", solucao);
 
         //Agora que temos o vetor marcado, procurar a posição com o menor valor
         int maquina_critica = getMaiorMaquina(solucao);
 
-        //Pegar o bloco iniciado com maior numero de trocas:
-        int inicio_bloco = getPosMenorElementoVector(solucao_marcada[maquina_critica]);
+        //Criar um array para identificar todos os possiveis blocos onde first é a posição e second o valor
+        vector <pair <int,int>> momentosDeTroca = getElementosNegativos(solucao[maquina_critica]);
 
-        //Preencher um vetor com todo o bloco até a troca
-        vector <int> bloco;
-        int ponteiro_marcado = inicio_bloco+1;
-        while (solucao_marcada[maquina_critica][ponteiro_marcado] < 0){
-            bloco.push_back(solucao_marcada[maquina_critica][ponteiro_marcado]);
-            removeDoVector(nova_solucao[maquina_critica],solucao_marcada[maquina_critica][ponteiro_marcado]);
-            ponteiro_marcado++;
+        vector <vector <int>> melhor_soulucao = solucao;
+        for (int i = 0 ; i < momentosDeTroca.size(); i++){
+            //Pegar o bloco iniciado com maior numero de trocas:
+            int ponteiro_marcado = momentosDeTroca[i].first;
+            
+            //Preencher um vetor com todo o bloco até a troca
+            vector <int> bloco;
+            
+
+            while (solucao_marcada[maquina_critica][ponteiro_marcado] > 0){
+                bloco.push_back(solucao_marcada[maquina_critica][ponteiro_marcado]);
+                removeDoVector(nova_solucao[maquina_critica],solucao_marcada[maquina_critica][ponteiro_marcado]);
+                ponteiro_marcado++;
+            }
+
+            int maquina_folgada = getMenorMaquina(solucao);
+            
+            for (int j = 0 ; j < bloco.size(); j++){
+                nova_solucao[maquina_folgada].push_back(bloco[j]);
+            }
+
+            if(funcaoAvaliativa(nova_solucao) < funcaoAvaliativa(melhor_soulucao)){
+                melhor_soulucao = nova_solucao;
+                break;
+            }
         }
 
-        int maquina_folgada = getMenorMaquina(solucao);
-        
-        for (int i = 0 ; i < bloco.size(); i++){
-            nova_solucao[maquina_folgada].push_back(bloco[i]);
-        }
-        
+
+
+        return nova_solucao;
     }
 
     vector < vector <int> > gerarSolucao(){
+        
         //Implementar uma heuristica aqui
         vector <vector <int>> solucao(m,vector <int>());
 
@@ -241,7 +272,22 @@ public:
             removePosVectorTuple(tempo_quantidade_tarefas,melhorTarefa);
         }
 
-        etapaDeRefinamento(solucao);
+        bool melhora;
+
+        do {
+            double actual_makespan = funcaoAvaliativa(solucao);
+            vector <vector <int> > new_solution = etapaDeRefinamento(solucao);
+            double new_makespan = funcaoAvaliativa(new_solution);
+
+            if (new_makespan < actual_makespan){
+                melhora = true;
+                solucao = new_solution;
+            } else {
+                melhora = false;
+            }
+
+
+        } while(melhora);
 
         /*//Famosa Heuristica TDC;
 
@@ -250,11 +296,11 @@ public:
         }*/
 
         
-        /*//Solução Mocada
-        vector <vector <int>> solucao(m,vector <int>());
+        //Solução Mocada
+        /*vector <vector <int>> solucao(m,vector <int>());
 
-        solucao[0] = {0,2,4,5,6,7};
-        solucao[1] = {1,3};*/
+        solucao[0] = {0,1,3,4};
+        solucao[1] = {7,2,6,5};*/
 
         return solucao;
     }

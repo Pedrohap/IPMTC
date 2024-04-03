@@ -71,7 +71,11 @@ int main (){
     //}
 
 
-
+    //A Saida tem que conter as Seguintes informaçoes:
+    //* Valor da solução antes do refinamento
+    //* Valor da solução após o refinamento
+    //* Quantas iterações o refinamento executou
+    //* Tempo de execução da HC, tempo de execução do refinamento, e tempo total.
 
     return 0;
 }
