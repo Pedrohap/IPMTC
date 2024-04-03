@@ -28,6 +28,14 @@ vector < vector <int> > matriz_ferramentas;
 //Vetor de tempo de conclusão
 vector <int> tempo_tarefa;
 
+//Valor da solução antes do refinamento
+extern int val_sol_inicial;
+
+//Valor da solução após o refinamento
+extern int val_sol_pos_ref;
+
+//Quantas iterações o refinamento executou
+extern int qtd_ite_ref;
 
 void readFile(){
     cin >> m;
@@ -54,21 +62,20 @@ int main (){
     setlocale(LC_ALL, "Portuguese");
     readFile();
     
-    Debug debug;
+    //Debug debug;
     IPMTC ipmtc;
 
-    debug.printEntrada();
+    //debug.printEntrada();
 
 
-    //for (int i = 0 ; i < 10000; i++){
+    vector <vector <int>> solucao = ipmtc.gerarSolucao();
 
-        vector <vector <int>> solucao = ipmtc.gerarSolucao();
+    double makespan = ipmtc.funcaoAvaliativa(solucao);
+    //debug.printSolucao(solucao);
 
-        double makespan = ipmtc.funcaoAvaliativa(solucao);
-        debug.printSolucao(solucao);
+    //cout << "O makespan é de " << makespan << endl;
 
-        cout << "O makespan é de " << makespan << endl;
-    //}
+    cout << val_sol_inicial << "|" << val_sol_pos_ref << "|" << qtd_ite_ref << "|" << endl;
 
 
     //A Saida tem que conter as Seguintes informaçoes:

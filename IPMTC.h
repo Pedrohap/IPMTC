@@ -23,6 +23,16 @@ extern vector < vector <int> > matriz_ferramentas;
 //<0>: representa a tarefa,<1>: o tempo e <2>: quantidade de ferramentas
 vector <tuple <int,int,int>> tempo_quantidade_tarefas;
 
+//Valor da solução antes do refinamento
+int val_sol_inicial;
+
+//Valor da solução após o refinamento
+int val_sol_pos_ref;
+
+//Quantas iterações o refinamento executou
+int qtd_ite_ref;
+
+
 
 class IPMTC{
 
@@ -30,17 +40,6 @@ private:
 public:
     IPMTC(/* args */){};
     ~IPMTC(){};
-
-    //Função EXCLSUIVA de comparação para o sort dos tuple
-    static bool comparacaoNoSegundoTuple(const tuple<int, int, int>& a, const tuple<int, int, int>& b) {
-        // Comparando o segundo elemento
-        if (get<2>(a) == get<2>(b)) {
-            // Se os segundos elementos são iguais, use o primeiro elemento para desempatar
-            return get<1>(a) < get<1>(b);
-        }
-        // Se os segundos elementos não são iguais, ordene normalmente por eles
-        return get<2>(a) < get<2>(b);
-    }
 
     void debugPrintaVetorTuple(){
         for (int i = 0 ; i < tempo_quantidade_tarefas.size(); i++){
@@ -167,6 +166,7 @@ public:
     }
 
     vector < vector <int> > etapaDeRefinamento(vector <vector <int>> solucao){
+
         vector < vector <int> > solucao_marcada(m,vector <int>());
 
         //Nova solucao que sera alterada durante a etapa de refinamento
@@ -211,7 +211,7 @@ public:
             for (int j = 0 ; j < bloco.size(); j++){
                 nova_solucao[maquina_folgada].push_back(bloco[j]);
             }
-
+            qtd_ite_ref++;
             if(funcaoAvaliativa(nova_solucao) < funcaoAvaliativa(melhor_soulucao)){
                 melhor_soulucao = nova_solucao;
                 break;
@@ -272,8 +272,10 @@ public:
             removePosVectorTuple(tempo_quantidade_tarefas,melhorTarefa);
         }
 
-        bool melhora;
+        val_sol_inicial = funcaoAvaliativa(solucao);
 
+        bool melhora;
+        qtd_ite_ref = 0;
         do {
             double actual_makespan = funcaoAvaliativa(solucao);
             vector <vector <int> > new_solution = etapaDeRefinamento(solucao);
@@ -302,6 +304,8 @@ public:
         solucao[0] = {0,1,3,4};
         solucao[1] = {7,2,6,5};*/
 
+        val_sol_pos_ref = funcaoAvaliativa(solucao);
+
         return solucao;
     }
 
@@ -321,16 +325,16 @@ public:
         double makespan =  tempoMaquinas[0];
         
         //DEBUG
-        cout << "Quantidade de trocas na máquina: " << 0 << " é " << trocaMaquinas[0] << endl;
-        cout << "O tempo de processamento da maquina " << 0 << " é: " << tempoMaquinas[0] << endl;
+        //cout << "Quantidade de trocas na máquina: " << 0 << " é " << trocaMaquinas[0] << endl;
+        //cout << "O tempo de processamento da maquina " << 0 << " é: " << tempoMaquinas[0] << endl;
 
         for(int i = 1; i < m ; i++){
             if (makespan < tempoMaquinas[i]){
                 makespan = tempoMaquinas[i];
             }
             
-            cout << "Quantidade de trocas na máquina: " << i << " é " << trocaMaquinas[i] << endl;
-            cout << "O tempo de processamento da maquina " << i << " é: " << tempoMaquinas[i] << endl;
+            //cout << "Quantidade de trocas na máquina: " << i << " é " << trocaMaquinas[i] << endl;
+            //cout << "O tempo de processamento da maquina " << i << " é: " << tempoMaquinas[i] << endl;
 
         }
 

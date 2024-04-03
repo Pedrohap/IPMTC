@@ -56,4 +56,16 @@ bool sortBySecond(const pair<int, int> &a, const pair<int, int> &b) {
     return a.second < b.second;
 }
 
+//Função EXCLSUIVA de comparação para o sort dos tuple
+bool comparacaoNoSegundoTuple(const tuple<int, int, int>& a, const tuple<int, int, int>& b) {
+    // Comparando o segundo elemento
+    if (get<2>(a) == get<2>(b)) {
+        // Se os segundos elementos são iguais, use o primeiro elemento para desempatar
+        return get<1>(a) < get<1>(b);
+    }
+    // Se os segundos elementos não são iguais, ordene normalmente por eles
+    return get<2>(a) < get<2>(b);
+}
+
+
 #endif
