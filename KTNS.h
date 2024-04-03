@@ -230,7 +230,7 @@ int KTNS(vector <int> maquina_carregada){
                     }
                     vector <int> candidatos;
                     //debugPrintMagazine(magazine);
-                    debugPrintMatriz("A matriz de ferramentas necessárias é:",  matriz_de_ferramentas_necessarias);
+                    //debugPrintMatriz("A matriz de ferramentas necessárias é:",  matriz_de_ferramentas_necessarias);
                     //cout << "CADIDATOS INICIAS: " << endl;
 
 
@@ -386,7 +386,7 @@ vector <int> KTNSMarcandoTrocas(vector <int> maquina_carregada){
                     }
                     vector <int> candidatos;
                     //debugPrintMagazine(magazine);
-                    debugPrintMatriz("A matriz de ferramentas necessárias é:",  matriz_de_ferramentas_necessarias);
+                    //debugPrintMatriz("A matriz de ferramentas necessárias é:",  matriz_de_ferramentas_necessarias);
                     //cout << "CADIDATOS INICIAS: " << endl;
 
 

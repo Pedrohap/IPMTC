@@ -5,6 +5,8 @@
 #include <vector>
 #include <tuple>
 #include <algorithm>
+#include <chrono>
+
 
 #include "KTNS.h"
 
@@ -32,7 +34,9 @@ int val_sol_pos_ref;
 //Quantas iterações o refinamento executou
 int qtd_ite_ref;
 
+chrono::duration<double> duration_HC;
 
+chrono::duration<double> duration_REF;
 
 class IPMTC{
 
@@ -189,8 +193,7 @@ public:
         int maquina_critica = getMaiorMaquina(solucao);
 
         //Criar um array para identificar todos os possiveis blocos onde first é a posição e second o valor
-        vector <pair <int,int>> momentosDeTroca = getElementosNegativos(solucao[maquina_critica]);
-
+        vector <pair <int,int>> momentosDeTroca = getElementosNegativos(solucao_marcada[maquina_critica]);
         vector <vector <int>> melhor_soulucao = solucao;
         for (int i = 0 ; i < momentosDeTroca.size(); i++){
             //Pegar o bloco iniciado com maior numero de trocas:
@@ -212,6 +215,7 @@ public:
                 nova_solucao[maquina_folgada].push_back(bloco[j]);
             }
             qtd_ite_ref++;
+
             if(funcaoAvaliativa(nova_solucao) < funcaoAvaliativa(melhor_soulucao)){
                 melhor_soulucao = nova_solucao;
                 break;
@@ -224,6 +228,8 @@ public:
     }
 
     vector < vector <int> > gerarSolucao(){
+
+        auto start_tempo_HC = chrono::high_resolution_clock::now();
         
         //Implementar uma heuristica aqui
         vector <vector <int>> solucao(m,vector <int>());
@@ -274,13 +280,21 @@ public:
 
         val_sol_inicial = funcaoAvaliativa(solucao);
 
+        auto end_tempo_HC = chrono::high_resolution_clock::now();
+
+        duration_HC = chrono::duration_cast<chrono::duration<double>>(end_tempo_HC - start_tempo_HC);
+
         bool melhora;
         qtd_ite_ref = 0;
+
+        auto start_REF = chrono::high_resolution_clock::now();
+
+
+
         do {
             double actual_makespan = funcaoAvaliativa(solucao);
             vector <vector <int> > new_solution = etapaDeRefinamento(solucao);
             double new_makespan = funcaoAvaliativa(new_solution);
-
             if (new_makespan < actual_makespan){
                 melhora = true;
                 solucao = new_solution;
@@ -290,6 +304,10 @@ public:
 
 
         } while(melhora);
+
+        auto end_REF = chrono::high_resolution_clock::now();
+
+        duration_REF = chrono::duration_cast<chrono::duration<double>>(end_REF - start_REF);
 
         /*//Famosa Heuristica TDC;
 

@@ -4,6 +4,7 @@
 #include "IPMTC.h"
 #include "KTNS.h"
 #include <locale.h>
+#include <chrono>
 
 using namespace std;
 
@@ -37,6 +38,12 @@ extern int val_sol_pos_ref;
 //Quantas iterações o refinamento executou
 extern int qtd_ite_ref;
 
+//Tempo de execução da Heuristica
+extern chrono::duration<double> duration_HC;
+
+//Tempo de execução do refinamento
+extern chrono::duration<double> duration_REF;
+
 void readFile(){
     cin >> m;
     cin >> w;
@@ -67,15 +74,20 @@ int main (){
 
     //debug.printEntrada();
 
+    auto start_tempo_total = chrono::high_resolution_clock::now();
 
     vector <vector <int>> solucao = ipmtc.gerarSolucao();
 
     double makespan = ipmtc.funcaoAvaliativa(solucao);
     //debug.printSolucao(solucao);
 
+    auto end_tempo_total = chrono::high_resolution_clock::now();
+
+    auto duration_tempo_total = chrono::duration_cast<chrono::duration<double>>(end_tempo_total - start_tempo_total);
+
     //cout << "O makespan é de " << makespan << endl;
 
-    cout << val_sol_inicial << "|" << val_sol_pos_ref << "|" << qtd_ite_ref << "|" << endl;
+    cout << val_sol_inicial << "|" << val_sol_pos_ref << "|" << qtd_ite_ref << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
 
 
     //A Saida tem que conter as Seguintes informaçoes:
