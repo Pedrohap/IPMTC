@@ -38,6 +38,12 @@ extern int val_sol_pos_ref;
 //Quantas iterações o refinamento executou
 extern int qtd_ite_ref;
 
+//Quantas trocas teve a solução inicial
+extern int qtd_trocas_ini;
+
+//Quantas trocas teve a solução refinada
+extern int qtd_trocas_pos_ref;
+
 //Tempo de execução da Heuristica
 extern chrono::duration<double> duration_HC;
 
@@ -66,7 +72,7 @@ void readFile(){
 }
 
 int main (){
-    setlocale(LC_ALL, "Portuguese");
+    setlocale(LC_ALL, "pt_BR.UTF-8");
     readFile();
     
     //Debug debug;
@@ -87,7 +93,7 @@ int main (){
 
     //cout << "O makespan é de " << makespan << endl;
 
-    cout << val_sol_inicial << "|" << val_sol_pos_ref << "|" << qtd_ite_ref << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
+    cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << qtd_trocas_pos_ref << "|" << "|" << qtd_ite_ref << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
 
 
     //A Saida tem que conter as Seguintes informaçoes:
@@ -95,6 +101,7 @@ int main (){
     //* Valor da solução após o refinamento
     //* Quantas iterações o refinamento executou
     //* Tempo de execução da HC, tempo de execução do refinamento, e tempo total.
+    //* TODO Quantidade de trocas total de todas as maquinas
 
     return 0;
 }

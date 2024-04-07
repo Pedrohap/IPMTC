@@ -188,7 +188,7 @@ void trocaMagazine(vector <int>& magazine, int ordem_da_tarefa_na_maquina){
     if (isProcessavel(magazine,ordem_da_tarefa_na_maquina)){
         //cout << "TAREFA " <<  ordem_da_tarefa_na_maquina << " PODE SER EXECUTADA" << endl;
     } else {
-        //cout << "ERRO FATAL A MÁQUINA NÃO TEM TODAS AS FERRAMENTAS NECESSÁRIAS!" << endl;
+        cout << "ERRO FATAL A MÁQUINA NÃO TEM TODAS AS FERRAMENTAS NECESSÁRIAS!" << endl;
         //debugPrintMagazine(magazine);
         debugPrintFerramentsNecessarias(ordem_da_tarefa_na_maquina);
         exit(EXIT_FAILURE);

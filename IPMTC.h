@@ -34,6 +34,12 @@ int val_sol_pos_ref;
 //Quantas iterações o refinamento executou
 int qtd_ite_ref;
 
+//Quantas trocas teve a solução inicial
+int qtd_trocas_ini;
+
+//Quantas trocas teve a solução refinada
+int qtd_trocas_pos_ref;
+
 chrono::duration<double> duration_HC;
 
 chrono::duration<double> duration_REF;
@@ -73,6 +79,13 @@ public:
         if (!vetorTuple.empty() && pos >= 0 && pos < vetorTuple.size()) {
             vetorTuple.erase(vetorTuple.begin() + pos);
         }
+    }
+
+    //Função para remover um elemento do vector de tuple baseado no valor da primeira posição do tuple;
+    void removeElementoVectorTuple(vector <tuple <int,int,int>>& vetorTuple, int elemento){
+        vetorTuple.erase(remove_if(vetorTuple.begin(), vetorTuple.end(), [&](const tuple<int, int, int>& elem) {
+            return get<0>(elem) == elemento;
+        }), vetorTuple.end());
     }
 
     //Retorna o tempo da solução de uma unica maquina
@@ -147,7 +160,7 @@ public:
             }
         }
 
-        //Ordena o vetor de pais em ordem crescente baseado no valor
+        //Ordena o vetor de pair em ordem crescente baseado no valor
         sort(elementosNegativos.begin(), elementosNegativos.end(), sortBySecond);
 
         return elementosNegativos;
@@ -157,6 +170,12 @@ public:
         vector <int> tempVec = solucaoDaMaquina;
         tempVec.push_back(novaTarefa);
         return getTempoUnico(tempVec);
+    }
+
+    int getQuantidadTrocasComAdd(vector <int> solucaoDaMaquina, int novaTarefa){
+        vector <int> tempVec = solucaoDaMaquina;
+        tempVec.push_back(novaTarefa);
+        return KTNS(tempVec);
     }
 
     int getPosMenorElementoVector(vector <int>& vetor){
@@ -259,26 +278,54 @@ public:
         while(!tempo_quantidade_tarefas.empty()){
             //Pega a maquina com menor tempo de trabalho;
             int menorMaquina = getMenorMaquina(solucao);
+
+            //Para escolha da próxima tarefa, antes de considerar a tarefa que vai resultar no menor 
+            //tempo de processamento da máquina, procure por tarefas que todas as ferramentas 
+            //necessárias já estejam no magazine. Se houver mais de uma, selecione a de maior tempo 
+            //de processamento. Se não existirem, siga com o processo de escolha anterior.
             
-            //Verificar quais das tarefas encaixa melhor na maquina
-            int melhorCenario = getTempoSolucaoComAdd(solucao[menorMaquina],get<0>(tempo_quantidade_tarefas[0]));
-            int cenarioAtual;
-
-            int melhorTarefa = 0;
+            //Vector de pair de int aonde first representa a tarefa e second o seu tempo
+            vector <pair <int,int>> tarefas_sem_troca;
             for (int i = 0; i < tempo_quantidade_tarefas.size(); i++){
-
-                cenarioAtual = getTempoSolucaoComAdd(solucao[menorMaquina],get<0>(tempo_quantidade_tarefas[i]));
-                if (melhorCenario < cenarioAtual){
-                    melhorCenario = cenarioAtual;
-                    melhorTarefa = i;
+                if(getQuantidadTrocasComAdd(solucao[menorMaquina],get<0>(tempo_quantidade_tarefas[i])) == 0){
+                    tarefas_sem_troca.push_back(pair <int,int> (get<0>(tempo_quantidade_tarefas[i]),get<1>(tempo_quantidade_tarefas[i])));
                 }
             }
-            //Inisiro a tarefa no vetor de solução na maquina desejada e removo a mesma do vetor de tarefas
-            solucao[menorMaquina].push_back(get<0>(tempo_quantidade_tarefas[melhorTarefa]));
-            removePosVectorTuple(tempo_quantidade_tarefas,melhorTarefa);
+            
+            //Se tiver a possibilidade de executar tarefas sem a necessidade de troca coloco a que tiver maior
+            //tempo na menor maquina
+            if (!tarefas_sem_troca.empty()){
+                sort(tarefas_sem_troca.begin(), tarefas_sem_troca.end(), sortBySecond);
+                
+                //Inisiro a tarefa no vetor de solução na maquina desejada e removo a mesma do vetor de tarefas
+                solucao[menorMaquina].push_back(get<0>(tempo_quantidade_tarefas[tarefas_sem_troca[0].first]));
+
+                removeElementoVectorTuple(tempo_quantidade_tarefas,tarefas_sem_troca[0].first);
+
+            } else {
+
+                //Verificar quais das tarefas encaixa melhor na maquina
+                int melhorCenario = getTempoSolucaoComAdd(solucao[menorMaquina],get<0>(tempo_quantidade_tarefas[0]));
+                int cenarioAtual;
+
+                int melhorTarefa = 0;
+                for (int i = 0; i < tempo_quantidade_tarefas.size(); i++){
+
+                    cenarioAtual = getTempoSolucaoComAdd(solucao[menorMaquina],get<0>(tempo_quantidade_tarefas[i]));
+                    if (melhorCenario < cenarioAtual){
+                        melhorCenario = cenarioAtual;
+                        melhorTarefa = i;
+                    }
+                }
+                //Inisiro a tarefa no vetor de solução na maquina desejada e removo a mesma do vetor de tarefas
+                solucao[menorMaquina].push_back(get<0>(tempo_quantidade_tarefas[melhorTarefa]));
+                removePosVectorTuple(tempo_quantidade_tarefas,melhorTarefa);
+
+            }
         }
 
         val_sol_inicial = funcaoAvaliativa(solucao);
+        qtd_trocas_ini = getQuantidadeTrocas(solucao);
 
         auto end_tempo_HC = chrono::high_resolution_clock::now();
 
@@ -323,6 +370,7 @@ public:
         solucao[1] = {7,2,6,5};*/
 
         val_sol_pos_ref = funcaoAvaliativa(solucao);
+        qtd_ite_ref = getQuantidadeTrocas(solucao);
 
         return solucao;
     }
@@ -357,6 +405,17 @@ public:
         }
 
         return makespan;
+    }
+
+    //Retorna a quantidade de trocas de uma solução
+    double getQuantidadeTrocas(vector <vector <int>> solucao){
+        double qtd_trocas = 0;
+
+        for (int i = 0; i < solucao.size(); i++){
+            qtd_trocas += KTNS(solucao[i]);
+        }
+
+        return qtd_trocas;
     }
 };
 
