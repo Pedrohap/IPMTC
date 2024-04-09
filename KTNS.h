@@ -194,7 +194,8 @@ int KTNS(vector <int> maquina_carregada){
     trocas = 0;
 
     ferramentas_utilizadas.clear();
-    vector <vector <int>> matriz_de_ferramentas_necessarias = getMatrizDeFerramentasNecessarias(maquina_carregada);
+    matriz_de_ferramentas_necessarias.clear();
+    matriz_de_ferramentas_necessarias = getMatrizDeFerramentasNecessarias(maquina_carregada);
     vector <int> magazine;
 
     //Definir a prioridade das ferramentas

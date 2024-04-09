@@ -75,5 +75,13 @@ bool comparacaoNoSegundoTuple(const tuple<int, int, int>& a, const tuple<int, in
     return get<2>(a) < get<2>(b);
 }
 
+string boolToString(bool value){
+    if(value){
+        return "sim";
+    } else {
+        return "não";
+    }
+}
+
 
 #endif

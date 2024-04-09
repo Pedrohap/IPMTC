@@ -50,6 +50,9 @@ extern chrono::duration<double> duration_HC;
 //Tempo de execução do refinamento
 extern chrono::duration<double> duration_REF;
 
+//Se verdaeiro, informa que ocorreu uma melhora durante o refinameno
+extern bool houve_melhora;
+
 void readFile(){
     cin >> m;
     cin >> w;
@@ -82,7 +85,7 @@ int main (){
 
     auto start_tempo_total = chrono::high_resolution_clock::now();
 
-    vector <vector <int>> solucao = ipmtc.gerarSolucao(true);
+    vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
 
     double makespan = ipmtc.funcaoAvaliativa(solucao);
     //debug.printSolucao(solucao);
@@ -93,7 +96,7 @@ int main (){
 
     //cout << "O makespan é de " << makespan << endl;
 
-    cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << "|" << qtd_trocas_pos_ref  << "|" << qtd_ite_ref << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
+    cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << "|" << qtd_trocas_pos_ref  << "|" << qtd_ite_ref << "|" << boolToString(houve_melhora) << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
 
 
     //A Saida tem que conter as Seguintes informaçoes:

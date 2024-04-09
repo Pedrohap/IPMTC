@@ -40,6 +40,8 @@ int qtd_trocas_ini;
 //Quantas trocas teve a solução refinada
 int qtd_trocas_pos_ref;
 
+bool houve_melhora;
+
 chrono::duration<double> duration_HC;
 
 chrono::duration<double> duration_REF;
@@ -356,8 +358,7 @@ public:
             } else {
                 melhora = false;
             }
-
-
+            houve_melhora = melhora;
         } while(melhora);
 
         auto end_REF = chrono::high_resolution_clock::now();
