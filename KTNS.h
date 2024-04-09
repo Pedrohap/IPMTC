@@ -27,19 +27,19 @@ int trocas;
 
 
 void debugPrintMagazine(vector <int> magazine){
-    //cout << "Magaize atual: ";
+    cout << "Magaize atual: ";
     for(int i = 0; i < magazine.size(); i++){
-        //cout << magazine[i] << " ";
+        cout << magazine[i] << " ";
     }
-    //cout << endl;
+    cout << endl;
 }
 
 void debugPrintFerramentsNecessarias(int ordem_da_tarefa_na_maquina){
-    //cout << "NECESSÁRIO PARA A CONCLUSÃO:" << endl;
+    cout << "NECESSÁRIO PARA A CONCLUSÃO:" << endl;
     for (int i = 0 ; i < matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina].size();i++){
-        //cout << matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i] << " ";
+        cout << matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i] << " ";
     }
-    //cout << endl;
+    cout << endl;
 }
 
 //Retorna uma Matriz com as ferramentas necessaria para a conclusão para um conjuento de tarefas especifico
@@ -149,27 +149,18 @@ void trocaMagazine(vector <int>& magazine, int ordem_da_tarefa_na_maquina){
     //Verificar quem está faltando no magazine
     vector <int> ferramenta_faltando;
  
-    //DEBUG
-    //debugPrintMagazine(magazine);
-
-    //cout << "FALTA AS FERRAMENTAS: ";
 
     for (int i = 0 ; i < matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina].size();i++){
 
         if(!isCarregada(magazine,matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i])){
             ferramenta_faltando.push_back(matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i]);
-            //cout << matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i] << " ";
         }
     }
-    //cout << endl;
     //colocar quem falta no magazine removendo os que tem menos prioridade
 
     //Pega os melhores candidatos a serem removidos e realiza a substituição
     for(int i = 0; i < ferramenta_faltando.size() ; i++){
         int candidatos_remocao = getBaixaPrioridade(magazine,matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina]);
-        
-        //DEBUG
-        //cout << "SAIU A FERRAMENTA: " <<  candidatos_remocao << " ENTROU A FERRAMENTA: " << ferramenta_faltando[i] << endl;
         
         magazine.erase(remove(magazine.begin(), magazine.end(), candidatos_remocao), magazine.end());
         //magazine.push_back(ferramenta_faltando[i]);
@@ -202,6 +193,7 @@ int KTNS(vector <int> maquina_carregada){
     int quantidade_tarefas = maquina_carregada.size();
     trocas = 0;
 
+    ferramentas_utilizadas.clear();
     vector <vector <int>> matriz_de_ferramentas_necessarias = getMatrizDeFerramentasNecessarias(maquina_carregada);
     vector <int> magazine;
 
@@ -356,6 +348,7 @@ vector <int> KTNSMarcandoTrocas(vector <int> maquina_carregada){
 
     vector <int> maquina_com_trocas;
 
+    ferramentas_utilizadas.clear();
     vector <vector <int>> matriz_de_ferramentas_necessarias = getMatrizDeFerramentasNecessarias(maquina_carregada);
     vector <int> magazine;
 
@@ -442,6 +435,152 @@ vector <int> KTNSMarcandoTrocas(vector <int> maquina_carregada){
         }   
     }
     return maquina_com_trocas;
+}
+
+void trocaMagazineDebug(vector <int>& magazine, int ordem_da_tarefa_na_maquina){
+    //Verificar quem está faltando no magazine
+    vector <int> ferramenta_faltando;
+ 
+    //DEBUG COMEÇA AQUI O QVC FEZ 09/04/24
+    debugPrintMagazine(magazine);
+
+    cout << "FALTA AS FERRAMENTAS: ";
+
+    for (int i = 0 ; i < matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina].size();i++){
+
+        if(!isCarregada(magazine,matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i])){
+            ferramenta_faltando.push_back(matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i]);
+            cout << matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina][i] << " ";
+        }
+    }
+    cout << endl;
+    //colocar quem falta no magazine removendo os que tem menos prioridade
+
+    //Pega os melhores candidatos a serem removidos e realiza a substituição
+    for(int i = 0; i < ferramenta_faltando.size() ; i++){
+        int candidatos_remocao = getBaixaPrioridade(magazine,matriz_de_ferramentas_necessarias[ordem_da_tarefa_na_maquina]);
+        
+        //DEBUG
+        cout << "SAIU A FERRAMENTA: " <<  candidatos_remocao <<" DE PRIORIDADE: "<< ferramenta_prioridade[ferramenta_faltando[i]] <<" E ENTROU A FERRAMENTA: " << ferramenta_faltando[i] << endl;
+        
+        magazine.erase(remove(magazine.begin(), magazine.end(), candidatos_remocao), magazine.end());
+        //magazine.push_back(ferramenta_faltando[i]);
+        //ferramenta_prioridade[ferramenta_faltando[i]]--;
+        //trocas++;
+    }
+
+    for(int i = 0; i < ferramenta_faltando.size() ; i++){
+
+        magazine.push_back(ferramenta_faltando[i]);
+        ferramenta_prioridade[ferramenta_faltando[i]]--;
+        trocas++;
+    }
+
+    //DEBUG
+    if (isProcessavel(magazine,ordem_da_tarefa_na_maquina)){
+        cout << "TAREFA " <<  ordem_da_tarefa_na_maquina << " PODE SER EXECUTADA" << endl;
+    } else {
+        cout << "ERRO FATAL A MÁQUINA NÃO TEM TODAS AS FERRAMENTAS NECESSÁRIAS!" << endl;
+        debugPrintMagazine(magazine);
+        debugPrintFerramentsNecessarias(ordem_da_tarefa_na_maquina);
+        exit(EXIT_FAILURE);
+    }
+    debugPrintMagazine(magazine);
+    cout << "-----------------------------------------------------" << endl;
+}
+
+//Recebe o vetor de uma máquina e retorna a quantidade de trocas necessárias
+int KTNSDebug(vector <int> maquina_carregada){
+    int quantidade_tarefas = maquina_carregada.size();
+    trocas = 0;
+    ferramentas_utilizadas.clear();
+    vector <vector <int>> matriz_de_ferramentas_necessarias = getMatrizDeFerramentasNecessarias(maquina_carregada);
+    vector <int> magazine;
+
+    //Definir a prioridade das ferramentas
+    ferramenta_prioridade.assign(t,0);
+    for (int i = 0 ; i < ferramentas_utilizadas.size() ; i++){
+        ferramenta_prioridade[ferramentas_utilizadas[i]] ++;
+    }
+
+    debugPrintVector("Vetor de prioridade:",ferramenta_prioridade);
+    debugPrintVector("Vetor de Ferramentas utilizadas:",ferramentas_utilizadas);
+    for (int i = 0 ; i < quantidade_tarefas ; i++){
+        if (i == 0){
+            cout << "CARGA INICIAL" << endl;
+
+            //Carga inicial de todas as ferramentas necessarias e perda de 1 ponto em prioridade
+            for (int j = 0; j < matriz_de_ferramentas_necessarias[i].size() ; j++){
+                magazine.push_back(matriz_de_ferramentas_necessarias[i][j]);
+                ferramenta_prioridade[matriz_de_ferramentas_necessarias[i][j]]--;
+            }
+            //Se o magazine não estiver cheio, adicionar ferramentas para completar baseado nas tarefas subsequentes
+            if (maquina_carregada.size() > 1){
+                int temp = 0;
+
+                while (magazine.size() <c) {
+                    temp++;
+                    if(temp >= matriz_de_ferramentas_necessarias.size()){
+                        break;
+                    }
+                    vector <int> candidatos;
+                    debugPrintMagazine(magazine);
+                    debugPrintMatriz("A matriz de ferramentas necessárias é:",  matriz_de_ferramentas_necessarias);
+                    cout << "CADIDATOS INICIAS: " << endl;
+
+
+                    for (int j = 0; j < matriz_de_ferramentas_necessarias[temp].size() ; j++){
+                        //Verifica se a ferramenta já esta carregada no magazine e busca candidatos a incerção
+
+                        if(!isCarregada(magazine,matriz_de_ferramentas_necessarias[temp][j])){
+                            //ferramenta encontrada q não está no magazine, adicionar em uma lista de candidatos e escolher a que tiver
+                            //maior prioridade
+                            candidatos.push_back( matriz_de_ferramentas_necessarias[temp][j]);
+                            cout << matriz_de_ferramentas_necessarias[temp][j] << " ";
+                        }
+                    }
+                    cout << endl;
+
+                    //Se todos os candidatos cabem no magazine, insira todos
+                    if ((magazine.size() + candidatos.size()) <= c && (candidatos.size() != 0)){
+                        for (int j = 0 ; j < candidatos.size(); j++){
+                            magazine.push_back(candidatos[j]);
+                        }
+                    } 
+                    //Tem mais cadidatos que espaço no magazine, insere até lotar
+                    else if (!candidatos.empty()){
+                        
+                        int espaco_disponivel = c - magazine.size();
+
+                        for(int j = 0; j < espaco_disponivel ; j++){
+                            int melhor_candidato = getAltaPrioridade(candidatos);
+
+                            cout << "ADICIONEI " << melhor_candidato << endl;
+                            
+                            magazine.push_back(melhor_candidato);
+
+                            candidatos.erase(remove(candidatos.begin(), candidatos.end(), melhor_candidato), candidatos.end());
+
+                            ferramenta_prioridade[melhor_candidato]--;
+                        }
+                    }
+                }
+            }
+            cout << "MAGAZINE INICIAL" << endl;
+            debugPrintMagazine(magazine);
+            cout << "O TAMANHO DO MAGAZINE FOI: " << magazine.size() << endl;
+            cout << "-----------------------------------------------------" << endl;
+
+        }
+
+
+        //Verificar se as ferramentas necessaria para a prox tarefa estão carregadas
+        //Se a tarefa não é possivel de ser processada, precisa realizar trocas
+        if(!isProcessavel(magazine,i)){
+            trocaMagazineDebug(magazine,i);
+        }   
+    }
+    return trocas;
 }
 
 

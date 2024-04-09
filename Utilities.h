@@ -19,7 +19,7 @@ int randomInt(int min, int max){
     return random_number;
 }
 
-void debugPrintMatriz(string menssagem, vector <vector <int>>& matriz){
+void debugPrintMatriz(string menssagem, vector <vector <int>> matriz){
     cout << menssagem << endl;
     for(int i = 0; i < matriz.size(); i++){
         for(int j = 0; j < matriz[i].size(); j++){
@@ -27,6 +27,14 @@ void debugPrintMatriz(string menssagem, vector <vector <int>>& matriz){
         }
         cout << endl;
     }
+}
+
+void debugPrintVector(string menssagem, vector <int> vetor){
+    cout << menssagem << endl;
+    for(int i = 0; i < vetor.size(); i++){
+        cout << vetor[i] << " ";
+    }
+    cout << endl;
 }
 
 void removeDoVector (vector <int>& vetor, int element){

@@ -242,11 +242,10 @@ public:
         }
 
 
-
         return nova_solucao;
     }
 
-    vector < vector <int> > gerarSolucao(){
+    vector < vector <int> > gerarSolucao(bool printSolution){
 
         auto start_tempo_HC = chrono::high_resolution_clock::now();
         
@@ -288,6 +287,8 @@ public:
             vector <pair <int,int>> tarefas_sem_troca;
             for (int i = 0; i < tempo_quantidade_tarefas.size(); i++){
                 if(getQuantidadTrocasComAdd(solucao[menorMaquina],get<0>(tempo_quantidade_tarefas[i])) == 0){
+                    //cout << "A tarefa " << get<0>(tempo_quantidade_tarefas[i]) << " não precisa de troca para a maquina " << menorMaquina << endl;
+                    //debugPrintMatriz("A solução atual é:",solucao);
                     tarefas_sem_troca.push_back(pair <int,int> (get<0>(tempo_quantidade_tarefas[i]),get<1>(tempo_quantidade_tarefas[i])));
                 }
             }
@@ -296,12 +297,14 @@ public:
             //tempo na menor maquina
             if (!tarefas_sem_troca.empty()){
                 sort(tarefas_sem_troca.begin(), tarefas_sem_troca.end(), sortBySecond);
+                //cout<< "Foi inserida a tarefa: " << tarefas_sem_troca[0].first << endl;
                 
                 //Inisiro a tarefa no vetor de solução na maquina desejada e removo a mesma do vetor de tarefas
-                solucao[menorMaquina].push_back(get<0>(tempo_quantidade_tarefas[tarefas_sem_troca[0].first]));
+                solucao[menorMaquina].push_back(tarefas_sem_troca[0].first);
 
                 removeElementoVectorTuple(tempo_quantidade_tarefas,tarefas_sem_troca[0].first);
 
+                tarefas_sem_troca.clear();
             } else {
 
                 //Verificar quais das tarefas encaixa melhor na maquina
@@ -327,6 +330,13 @@ public:
         val_sol_inicial = funcaoAvaliativa(solucao);
         qtd_trocas_ini = getQuantidadeTrocas(solucao);
 
+        if(printSolution){
+            debugPrintMatriz("A solução inical é:",solucao);
+            cout << "Quantidade de trocas: " << getQuantidadeTrocas(solucao) << endl;
+            cout << "Makespan: " << funcaoAvaliativa(solucao) << endl;
+        }
+
+
         auto end_tempo_HC = chrono::high_resolution_clock::now();
 
         duration_HC = chrono::duration_cast<chrono::duration<double>>(end_tempo_HC - start_tempo_HC);
@@ -335,8 +345,6 @@ public:
         qtd_ite_ref = 0;
 
         auto start_REF = chrono::high_resolution_clock::now();
-
-
 
         do {
             double actual_makespan = funcaoAvaliativa(solucao);
@@ -370,7 +378,13 @@ public:
         solucao[1] = {7,2,6,5};*/
 
         val_sol_pos_ref = funcaoAvaliativa(solucao);
-        qtd_ite_ref = getQuantidadeTrocas(solucao);
+        qtd_trocas_pos_ref = getQuantidadeTrocas(solucao);
+
+        if(printSolution){
+            debugPrintMatriz("A solução refinada é:",solucao);
+            cout << "Quantidade de trocas: " << getQuantidadeTrocas(solucao) << endl;
+            cout << "Makespan: " << funcaoAvaliativa(solucao) << endl;
+        }
 
         return solucao;
     }
@@ -390,18 +404,11 @@ public:
 
         double makespan =  tempoMaquinas[0];
         
-        //DEBUG
-        //cout << "Quantidade de trocas na máquina: " << 0 << " é " << trocaMaquinas[0] << endl;
-        //cout << "O tempo de processamento da maquina " << 0 << " é: " << tempoMaquinas[0] << endl;
-
         for(int i = 1; i < m ; i++){
             if (makespan < tempoMaquinas[i]){
                 makespan = tempoMaquinas[i];
             }
             
-            //cout << "Quantidade de trocas na máquina: " << i << " é " << trocaMaquinas[i] << endl;
-            //cout << "O tempo de processamento da maquina " << i << " é: " << tempoMaquinas[i] << endl;
-
         }
 
         return makespan;
@@ -409,8 +416,7 @@ public:
 
     //Retorna a quantidade de trocas de uma solução
     double getQuantidadeTrocas(vector <vector <int>> solucao){
-        double qtd_trocas = 0;
-
+        int qtd_trocas = 0;
         for (int i = 0; i < solucao.size(); i++){
             qtd_trocas += KTNS(solucao[i]);
         }

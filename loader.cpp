@@ -82,7 +82,7 @@ int main (){
 
     auto start_tempo_total = chrono::high_resolution_clock::now();
 
-    vector <vector <int>> solucao = ipmtc.gerarSolucao();
+    vector <vector <int>> solucao = ipmtc.gerarSolucao(true);
 
     double makespan = ipmtc.funcaoAvaliativa(solucao);
     //debug.printSolucao(solucao);
@@ -93,7 +93,7 @@ int main (){
 
     //cout << "O makespan é de " << makespan << endl;
 
-    cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << qtd_trocas_pos_ref << "|" << "|" << qtd_ite_ref << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
+    cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << "|" << qtd_trocas_pos_ref  << "|" << qtd_ite_ref << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
 
 
     //A Saida tem que conter as Seguintes informaçoes:
