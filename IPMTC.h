@@ -80,6 +80,9 @@ public:
     void removePosVectorTuple(vector <tuple <int,int,int>>& vetorTuple, int pos){
         if (!vetorTuple.empty() && pos >= 0 && pos < vetorTuple.size()) {
             vetorTuple.erase(vetorTuple.begin() + pos);
+        } else {
+            cout << "ERRO FATAL EM removePosVectorTuple" << endl;
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -190,12 +193,16 @@ public:
         return posicao;
     }
 
-    vector < vector <int> > etapaDeRefinamento(vector <vector <int>> solucao){
+    vector < vector <int> > etapaDeRefinamento(vector <vector <int>> solucao,bool debug){
+        if (debug){
+            printLinha();
+            cout << "Etapa de Refinamento:" << endl;
+        }
 
         vector < vector <int> > solucao_marcada(m,vector <int>());
 
         //Nova solucao que sera alterada durante a etapa de refinamento
-        vector < vector <int> > nova_solucao = solucao;
+        vector < vector <int> > nova_solucao;
 
         //Etapa de refinamento
 
@@ -209,25 +216,36 @@ public:
             solucao_marcada[i] = KTNSMarcandoTrocas(solucao[i]);
         }
 
-
-        //Agora que temos o vetor marcado, procurar a posição com o menor valor
+        //Agora que temos o vetor marcado, procurar a posição com o maior valor
         int maquina_critica = getMaiorMaquina(solucao);
 
         //Criar um array para identificar todos os possiveis blocos onde first é a posição e second o valor
         vector <pair <int,int>> momentosDeTroca = getElementosNegativos(solucao_marcada[maquina_critica]);
-        vector <vector <int>> melhor_soulucao = solucao;
+
+        if (debug){
+            debugPrintMatriz("Matriz de solução com trocas marcadas:",solucao_marcada);
+            cout << "Sendo a máquina " << maquina_critica << " critica" << endl;
+        }
+
         for (int i = 0 ; i < momentosDeTroca.size(); i++){
+            nova_solucao = solucao;
             //Pegar o bloco iniciado com maior numero de trocas:
-            int ponteiro_marcado = momentosDeTroca[i].first;
+            int ponteiro_marcado_guide = momentosDeTroca[i].first;
+            int ponteiro_marcado = momentosDeTroca[i].first +1;
             
             //Preencher um vetor com todo o bloco até a troca
             vector <int> bloco;
             
 
-            while (solucao_marcada[maquina_critica][ponteiro_marcado] > 0){
+            while (solucao_marcada[maquina_critica][ponteiro_marcado] >= 0 && ponteiro_marcado < solucao_marcada[maquina_critica].size()){
                 bloco.push_back(solucao_marcada[maquina_critica][ponteiro_marcado]);
                 removeDoVector(nova_solucao[maquina_critica],solucao_marcada[maquina_critica][ponteiro_marcado]);
                 ponteiro_marcado++;
+            }
+
+            if(debug){
+                cout << "O ponteiro de inicio do bloco foi o " << ponteiro_marcado_guide << endl;
+                debugPrintVector("Assim o bloco é:",bloco);
             }
 
             int maquina_folgada = getMenorMaquina(solucao);
@@ -235,18 +253,37 @@ public:
             for (int j = 0 ; j < bloco.size(); j++){
                 nova_solucao[maquina_folgada].push_back(bloco[j]);
             }
+
+            if(debug){
+                cout << "Jogando o bloco na maquina mais desocupada que é a máquina: " << maquina_folgada << endl;
+                debugPrintMatriz("Gerando a seguinte nova solução:",nova_solucao);
+                cout << "Com um Makespan de :" << funcaoAvaliativa(nova_solucao) << endl;
+
+            }
             qtd_ite_ref++;
 
-            if(funcaoAvaliativa(nova_solucao) < funcaoAvaliativa(melhor_soulucao)){
-                melhor_soulucao = nova_solucao;
-                break;
+            if(funcaoAvaliativa(nova_solucao) < funcaoAvaliativa(solucao)){
+                if(debug){
+                    cout << "Nova solução melhorada encontrada!" << endl;
+                    cout << "Fim da etapa de refinamento" << endl;
+                    printLinha();
+                }
+                return nova_solucao;
+            } else {
+                if(debug){
+                    cout << "Não foi encontrada uma solução melhor, reinicia-se o processo montando um novo bloco" << endl;
+                }
             }
         }
 
+        if(debug){
+            cout << "Todos os possiveis blocos foram testandos e não houve melhora." << endl;
+        }
 
         return nova_solucao;
     }
 
+    //Metodo Original com uma heuristica não aleatoria
     vector < vector <int> > gerarSolucao(bool printSolution){
 
         auto start_tempo_HC = chrono::high_resolution_clock::now();
@@ -347,18 +384,19 @@ public:
         qtd_ite_ref = 0;
 
         auto start_REF = chrono::high_resolution_clock::now();
-
+        houve_melhora = false;
         do {
             double actual_makespan = funcaoAvaliativa(solucao);
-            vector <vector <int> > new_solution = etapaDeRefinamento(solucao);
+            vector <vector <int> > new_solution = etapaDeRefinamento(solucao,printSolution);
             double new_makespan = funcaoAvaliativa(new_solution);
             if (new_makespan < actual_makespan){
                 melhora = true;
                 solucao = new_solution;
+                houve_melhora = true;
             } else {
                 melhora = false;
             }
-            houve_melhora = melhora;
+            
         } while(melhora);
 
         auto end_REF = chrono::high_resolution_clock::now();
@@ -388,6 +426,89 @@ public:
         }
 
         return solucao;
+    }
+
+    vector < vector <int>> gerarSolucaoAleatoria (bool printSolution){
+        auto start_tempo_HC = chrono::high_resolution_clock::now();
+
+        //Gerar vetor de tarefas e aleatoriza-lo
+        vector <int> vec_tarefas;
+
+        for (int i = 0; i < w ;i++){
+            vec_tarefas.push_back(i);
+        }
+
+        shuffleVec(vec_tarefas);
+        //Ordernar a tarefa das maquinas mais desocupadas (A tarefa vai pra maquina com menor tempo de excução)
+        vector <vector <int>> solucao(m,vector <int>());
+
+        for (int i = 0; i < m ; i++){
+            if (!vec_tarefas.empty()){
+                int temp = vec_tarefas[0];
+                solucao[i].push_back(temp);
+                removeDoVector(vec_tarefas,temp);
+            } else {
+                //Não tem mais tarefas dispniveis
+                return solucao;
+            }
+        }
+
+        do{
+            int maquina_mais_ociosa = getMenorMaquina(solucao);
+            solucao[maquina_mais_ociosa].push_back(vec_tarefas[0]);
+            removeDoVector(vec_tarefas,vec_tarefas[0]);
+
+        }while(!vec_tarefas.empty());
+
+        val_sol_inicial = funcaoAvaliativa(solucao);
+        qtd_trocas_ini = getQuantidadeTrocas(solucao);
+
+        if(printSolution){
+            debugPrintMatriz("A solução inical é:",solucao);
+            cout << "Quantidade de trocas: " << getQuantidadeTrocas(solucao) << endl;
+            cout << "Makespan: " << funcaoAvaliativa(solucao) << endl;
+        }
+
+        auto end_tempo_HC = chrono::high_resolution_clock::now();
+
+        duration_HC = chrono::duration_cast<chrono::duration<double>>(end_tempo_HC - start_tempo_HC);
+
+        //Inicio da função de refinamento
+        bool melhora;
+        houve_melhora = false;
+        qtd_ite_ref = 0;
+
+        auto start_REF = chrono::high_resolution_clock::now();
+
+        do {
+            double actual_makespan = funcaoAvaliativa(solucao);
+            vector <vector <int> > new_solution = etapaDeRefinamento(solucao,printSolution);
+            double new_makespan = funcaoAvaliativa(new_solution);
+            if (new_makespan < actual_makespan){
+                melhora = true;
+                houve_melhora = true;
+                solucao = new_solution;
+            } else {
+                melhora = false;
+            }
+
+        } while(melhora);
+
+        auto end_REF = chrono::high_resolution_clock::now();
+
+        duration_REF = chrono::duration_cast<chrono::duration<double>>(end_REF - start_REF);
+
+        val_sol_pos_ref = funcaoAvaliativa(solucao);
+        qtd_trocas_pos_ref = getQuantidadeTrocas(solucao);
+
+        if(printSolution){
+            debugPrintMatriz("A solução refinada é:",solucao);
+            cout << "Quantidade de trocas: " << getQuantidadeTrocas(solucao) << endl;
+            cout << "Makespan: " << funcaoAvaliativa(solucao) << endl;
+        }
+
+        return solucao;
+
     }
 
     double funcaoAvaliativa(vector <vector <int>> solucao){

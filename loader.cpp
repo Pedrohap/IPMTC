@@ -85,7 +85,8 @@ int main (){
 
     auto start_tempo_total = chrono::high_resolution_clock::now();
 
-    vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
+    //vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
+    vector <vector <int>> solucao = ipmtc.gerarSolucaoAleatoria(true);
 
     double makespan = ipmtc.funcaoAvaliativa(solucao);
     //debug.printSolucao(solucao);
@@ -104,7 +105,12 @@ int main (){
     //* Valor da solução após o refinamento
     //* Quantas iterações o refinamento executou
     //* Tempo de execução da HC, tempo de execução do refinamento, e tempo total.
-    //* TODO Quantidade de trocas total de todas as maquinas
+    //* Quantidade de trocas total de todas as maquinas
+
+
+    //TODO
+    //Pegar o vetor de tarefas e mete um shuffle (aleatorizar)
+    //Ordernar a tarefa das maquinas mais desocupadas (A tarefa vai pra maquina com menor tempo de excução)
 
     return 0;
 }

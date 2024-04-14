@@ -19,7 +19,7 @@ int randomInt(int min, int max){
     return random_number;
 }
 
-void debugPrintMatriz(string menssagem, vector <vector <int>> matriz){
+void debugPrintMatriz(string menssagem, vector <vector <int>>& matriz){
     cout << menssagem << endl;
     for(int i = 0; i < matriz.size(); i++){
         for(int j = 0; j < matriz[i].size(); j++){
@@ -27,6 +27,11 @@ void debugPrintMatriz(string menssagem, vector <vector <int>> matriz){
         }
         cout << endl;
     }
+}
+
+//Simplesmente imprime uma linha separadora
+void printLinha(){
+    cout << "------------------------------------------------" << endl;
 }
 
 void debugPrintVector(string menssagem, vector <int> vetor){
@@ -37,13 +42,22 @@ void debugPrintVector(string menssagem, vector <int> vetor){
     cout << endl;
 }
 
+//Remove o elemento informado do vetor
 void removeDoVector (vector <int>& vetor, int element){
     auto iterator = find(vetor.begin(), vetor.end(), element);
     if (iterator != vetor.end()){
         vetor.erase(iterator);
     } else {
         cout << "ELEMENTO NÃO ENCONTRADO" << endl;
+        exit(EXIT_FAILURE);
     }
+}
+
+void shuffleVec (vector<int>& vetor){
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    
+    shuffle (vetor.begin(), vetor.end(), default_random_engine(seed));
+
 }
 
 int getPosElementoVector(vector <int>& vetor,int elemento){
