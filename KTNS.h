@@ -433,7 +433,9 @@ vector <int> KTNSMarcandoTrocas(vector <int> maquina_carregada){
         //Se a tarefa não é possivel de ser processada, precisa realizar trocas
         if(!isProcessavel(magazine,i)){
             trocaMagazineMarcandoTrocas(magazine,i,maquina_com_trocas,maquina_carregada);
-        }   
+        } else if(i != 0) {
+            maquina_com_trocas.push_back(maquina_carregada[i]);
+        }
     }
     return maquina_com_trocas;
 }

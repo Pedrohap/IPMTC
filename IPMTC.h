@@ -130,6 +130,38 @@ public:
         return menorMaquinaTempo;
     }
 
+    //Retorna a tarefa com maior tempo de conclusão
+    int getTarefaMaisDemorada(vector <int>& solucao_da_maquina){
+        if (solucao_da_maquina.empty()){
+            cout << "MAQUINA VAZIA" << endl;
+            return -1;
+        }
+        int temp = solucao_da_maquina[0];
+        for (int i = 1; i < solucao_da_maquina.size(); i++){
+            if(tempo_tarefa[temp]<tempo_tarefa[solucao_da_maquina[i]]){
+                temp = solucao_da_maquina[i];
+            }
+        }
+
+        return temp;
+    }
+
+    //Retorna a tarefa com menor tempo de conclusão
+    int getTarefaMaisRapida(vector <int>& solucao_da_maquina){
+        if (solucao_da_maquina.empty()){
+            cout << "MAQUINA VAZIA" << endl;
+            return -1;
+        }
+        int temp = solucao_da_maquina[0];
+        for (int i = 1; i < solucao_da_maquina.size(); i++){
+            if(tempo_tarefa[temp]>tempo_tarefa[solucao_da_maquina[i]]){
+                temp = solucao_da_maquina[i];
+            }
+        }
+
+        return temp;
+    }
+
     //Retorna a maquina com o maior tempo de processamento
     int getMaiorMaquina(vector <vector <int>> solucao){
         vector <double> tempoMaquinas(m,0);
@@ -225,6 +257,56 @@ public:
         if (debug){
             debugPrintMatriz("Matriz de solução com trocas marcadas:",solucao_marcada);
             cout << "Sendo a máquina " << maquina_critica << " critica" << endl;
+            debugPrintVectorPair("Com os seguintes possiveis blocos:",momentosDeTroca);
+        }
+
+        //Se não tiver nenhuma troca na maquina critica, joga pra maquina ociosa
+        //a tarefa com maior tempo, se piorar, joga a menor
+        if (momentosDeTroca.empty()){
+            nova_solucao = solucao;
+            int maquina_ociosa = getMenorMaquina(solucao);
+            int tarefa_mais_demorada = getTarefaMaisDemorada(solucao[maquina_critica]);
+
+            nova_solucao[maquina_ociosa].push_back(tarefa_mais_demorada);
+            removeDoVector(nova_solucao[maquina_critica],tarefa_mais_demorada);
+
+            if(debug){
+                cout << "Nenhuma troca existe na maquina critica" << endl;
+                cout << "Assim, mandamos a maior tarefa, sendo ela " << tarefa_mais_demorada << " da máquina critica " << maquina_critica << " para a maquina ociosa " << maquina_ociosa << endl;
+                debugPrintMatriz("Resultando na seguinte solução:",nova_solucao);
+                cout << "Com um makespan de: " << funcaoAvaliativa(nova_solucao) << endl;
+            }
+
+            if(funcaoAvaliativa(nova_solucao) < funcaoAvaliativa(solucao)){
+                if(debug){
+                    cout << "Nova solução melhorada encontrada!" << endl;
+                    cout << "Fim da etapa de refinamento" << endl;
+                    printLinha();
+                }
+                return nova_solucao;
+            } else {
+                //Reseta a nova solucao
+                nova_solucao = solucao;
+                int tarefa_menos_demorada = getTarefaMaisRapida(solucao[maquina_critica]);
+                nova_solucao[maquina_ociosa].push_back(tarefa_menos_demorada);
+                removeDoVector(nova_solucao[maquina_critica],tarefa_menos_demorada);
+
+                if(debug){
+                    cout << "Assim, mandamos a menor tarefa, sendo ela " << tarefa_menos_demorada << " da máquina critica " << maquina_critica << " para a maquina ociosa " << maquina_ociosa << endl;
+                    debugPrintMatriz("Resultando na seguinte solução:",nova_solucao);
+                    cout << "Com um makespan de: " << funcaoAvaliativa(nova_solucao) << endl;
+                }
+
+                if(funcaoAvaliativa(nova_solucao) < funcaoAvaliativa(solucao)){
+                    if(debug){
+                        cout << "Nova solução melhorada encontrada!" << endl;
+                        cout << "Fim da etapa de refinamento" << endl;
+                        printLinha();
+                    }
+                    return nova_solucao;
+                }
+            }
+
         }
 
         for (int i = 0 ; i < momentosDeTroca.size(); i++){
@@ -517,7 +599,6 @@ public:
 
         for (int i = 0; i < solucao.size(); i++){
             trocaMaquinas[i] = KTNS(solucao[i]);
-
             for (int j = 0; j < solucao[i].size() ; j++){
                 tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
             }
@@ -529,11 +610,28 @@ public:
         for(int i = 1; i < m ; i++){
             if (makespan < tempoMaquinas[i]){
                 makespan = tempoMaquinas[i];
-            }
-            
+            }    
+        }
+
+        //Para garantir que a solução é valida, deve-se verificar se todas as tarefas estão alocadas nas máquinas
+        if (!isValida(solucao)){
+            cout << "ERRO CRÍTICO, SOLUÇÃO NÃO CONTEM A MESMA QUANTIDADE DE TAREFAS";
+            exit(EXIT_FAILURE);
         }
 
         return makespan;
+    }
+
+    bool isValida(vector <vector <int>>& solucao){
+        int cont = 0;
+        for (int i = 0; i < solucao.size();i++){
+            cont += solucao[i].size();
+        }
+        if (cont == w){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //Retorna a quantidade de trocas de uma solução

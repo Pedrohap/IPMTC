@@ -29,6 +29,14 @@ void debugPrintMatriz(string menssagem, vector <vector <int>>& matriz){
     }
 }
 
+void debugPrintVectorPair(string menssagem, vector <pair <int,int>>& vetor){
+    cout << menssagem << endl;
+    for(int i = 0; i < vetor.size(); i++){
+        cout << vetor[i].first << "," << vetor[i].second << " ";
+    }
+    cout << endl;
+}
+
 //Simplesmente imprime uma linha separadora
 void printLinha(){
     cout << "------------------------------------------------" << endl;

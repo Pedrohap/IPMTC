@@ -85,8 +85,8 @@ int main (){
 
     auto start_tempo_total = chrono::high_resolution_clock::now();
 
-    //vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
-    vector <vector <int>> solucao = ipmtc.gerarSolucaoAleatoria(true);
+    vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
+    //vector <vector <int>> solucao = ipmtc.gerarSolucaoAleatoria(true);
 
     double makespan = ipmtc.funcaoAvaliativa(solucao);
     //debug.printSolucao(solucao);

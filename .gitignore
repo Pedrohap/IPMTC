@@ -1,3 +1,5 @@
 *.exe
 *.test
 *.xlsx
+
+.vscode/
