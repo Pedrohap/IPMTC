@@ -22,7 +22,9 @@ public:
     
     // PSO iterações
     Particle startPSO(){
-        particles.assign(qtd_particulas,Particle(w));
+        for (int i = 0; i < qtd_particulas ; i++){
+            particles.push_back(Particle(w));
+        }
         Particle bestParcticle(w);
         pso_int_bg_final = 0;
         pso_qtd_bg = 0;

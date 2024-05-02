@@ -6,8 +6,12 @@
 #include "PSO.h"
 #include <locale.h>
 #include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <functional>
 
 using namespace std;
+namespace fs = filesystem;
 
 //Numero de Tarefas
 int w;
@@ -60,6 +64,39 @@ extern int pso_int_bg_final;
 //Quantas vezes foi encontrado um melhor global
 extern int pso_qtd_bg;
 
+
+void processFile(const fs::path& filePath) {
+    // Abre o arquivo para leitura
+    ifstream file(filePath);
+    
+    // Verifica se o arquivo foi aberto corretamente
+    if (!file.is_open()) {
+        cerr << "Erro ao abrir o arquivo: " << filePath << endl;
+        return;
+    }
+    
+    // Lê o número do arquivo
+    int number;
+    file >> number;
+    
+    // Fecha o arquivo
+    file.close();
+    
+    // Imprime o número lido
+    cout << "Número do arquivo " << filePath << ": " << number << endl;
+}
+
+void traverseDirectory(const fs::path& directoryPath, const function<void(const fs::path&)>& processFunc) {
+    for (const auto& entry : fs::directory_iterator(directoryPath)) {
+        const auto& path = entry.path();
+        if (fs::is_regular_file(path)) {
+            processFunc(path);
+        } else if (fs::is_directory(path)) {
+            traverseDirectory(path, processFunc); // recursivamente navega em subdiretórios
+        }
+    }
+}
+
 void readFile(){
     cin >> m;
     cin >> w;
@@ -83,6 +120,16 @@ void readFile(){
 
 int main (){
     setlocale(LC_ALL, "pt_BR.UTF-8");
+    
+    fs::path mainDirectory = "instances"; // Substitua pelo caminho da sua pasta principal
+    
+    if (!fs::exists(mainDirectory) || !fs::is_directory(mainDirectory)) {
+        cerr << "Pasta principal não encontrada!" << endl;
+        return 1;
+    }
+
+    traverseDirectory(mainDirectory, processFile);
+
     readFile();
     
     IPMTC ipmtc;
@@ -105,6 +152,14 @@ int main (){
         
         cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << "|" << qtd_trocas_pos_ref  << "|" << qtd_ite_ref << "|" << boolToString(houve_melhora) << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
     } else if (metodo == "PSO"){
+        //Criação da pasta com os dados da particula
+        /*if (!fs::exists("Particles")){
+            fs::create_directory("Particles");
+        }
+        string arquivo = "Particles/" + "m=" + m + "_n="
+
+        ofstream arquivo_saida();*/
+
         PSO pso;
         Particle bestSolution = pso.startPSO();
 
