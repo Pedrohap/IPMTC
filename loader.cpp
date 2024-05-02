@@ -3,6 +3,7 @@
 #include "Debug.h"
 #include "IPMTC.h"
 #include "KTNS.h"
+#include "PSO.h"
 #include <locale.h>
 #include <chrono>
 
@@ -53,6 +54,12 @@ extern chrono::duration<double> duration_REF;
 //Se verdaeiro, informa que ocorreu uma melhora durante o refinameno
 extern bool houve_melhora;
 
+//Interação que achou o melhor global
+extern int pso_int_bg_final;
+
+//Quantas vezes foi encontrado um melhor global
+extern int pso_qtd_bg;
+
 void readFile(){
     cin >> m;
     cin >> w;
@@ -78,27 +85,35 @@ int main (){
     setlocale(LC_ALL, "pt_BR.UTF-8");
     readFile();
     
-    //Debug debug;
     IPMTC ipmtc;
+
+    //RH = Heurisitca Randomica ou tradicional
+    //PSO = Particle Swarm Optimization
+    string metodo = "PSO";
 
     //debug.printEntrada();
 
     auto start_tempo_total = chrono::high_resolution_clock::now();
 
-    vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
-    //vector <vector <int>> solucao = ipmtc.gerarSolucaoAleatoria(true);
+    if (metodo == "RH"){
+        vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
+        //vector <vector <int>> solucao = ipmtc.gerarSolucaoAleatoria(true);
+        double makespan = ipmtc.funcaoAvaliativa(solucao);
 
-    double makespan = ipmtc.funcaoAvaliativa(solucao);
-    //debug.printSolucao(solucao);
+        auto end_tempo_total = chrono::high_resolution_clock::now();
+        auto duration_tempo_total = chrono::duration_cast<chrono::duration<double>>(end_tempo_total - start_tempo_total);
+        
+        cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << "|" << qtd_trocas_pos_ref  << "|" << qtd_ite_ref << "|" << boolToString(houve_melhora) << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
+    } else if (metodo == "PSO"){
+        PSO pso;
+        Particle bestSolution = pso.startPSO();
 
-    auto end_tempo_total = chrono::high_resolution_clock::now();
+        auto end_tempo_total = chrono::high_resolution_clock::now();
+        auto duration_tempo_total = chrono::duration_cast<chrono::duration<double>>(end_tempo_total - start_tempo_total);
 
-    auto duration_tempo_total = chrono::duration_cast<chrono::duration<double>>(end_tempo_total - start_tempo_total);
-
-    //cout << "O makespan é de " << makespan << endl;
-
-    cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << "|" << qtd_trocas_pos_ref  << "|" << qtd_ite_ref << "|" << boolToString(houve_melhora) << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
-
+        //Makespan|QTD de trocas|Iteração que achou o melhor global|Quantos vezes foi encontrado um melhor global|Tempo de Execução
+        cout << bestSolution.fitness << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << duration_tempo_total.count()<< endl;
+    }
 
     //A Saida tem que conter as Seguintes informaçoes:
     //* Valor da solução antes do refinamento
@@ -107,10 +122,16 @@ int main (){
     //* Tempo de execução da HC, tempo de execução do refinamento, e tempo total.
     //* Quantidade de trocas total de todas as maquinas
 
-
-    //TODO
     //Pegar o vetor de tarefas e mete um shuffle (aleatorizar)
     //Ordernar a tarefa das maquinas mais desocupadas (A tarefa vai pra maquina com menor tempo de excução)
+
+    //TODO
+    //Implementar o PSO (Olhar a planilha);
+    //Particulas 100;
+    //Interações 100; (Atualizar todas as pairticulas = 1 iteração)
+    //Saida deve mostrar em qual iteração rolou a melhor global e quantos melhores existiram
+    //Salvar todos os fitness de todas as pariculas da primeira itenração e dps da ultima
+    //Paralelizar o "for" que calcula a velocidade e a posição, o calcuo do fitness NÃO É PARALELIZADO
 
     return 0;
 }

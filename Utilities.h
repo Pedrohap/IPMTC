@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <random>
+#include <string>
+
 
 
 using namespace std;
@@ -17,6 +19,22 @@ int randomInt(int min, int max){
     int random_number = distribution(generator);
 
     return random_number;
+}
+
+float randomFloat(float min, float max) {
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_real_distribution<float> distribution(min, max);
+    float random_number = distribution(generator);
+    return random_number;
+}
+
+//Retorna o inteiro do ultimo numero de um float
+int getLastDigit(float num) {
+    string numStr = to_string(num);
+    char lastChar = numStr[numStr.size() - 1];
+    int lastDigit = lastChar - '0'; // Convertendo caractere para inteiro
+    return lastDigit;
 }
 
 void debugPrintMatriz(string menssagem, vector <vector <int>>& matriz){
@@ -81,8 +99,13 @@ int getPosElementoVector(vector <int>& vetor,int elemento){
     }
 }
 
-//Função EXCLUSIVA para ordernar um pair baseado em seu segundo valor
+//Função EXCLUSIVA para ordernar um pair de Int, Int baseado em seu segundo valor
 bool sortBySecond(const pair<int, int> &a, const pair<int, int> &b) {
+    return a.second < b.second;
+}
+
+//Função EXCLUSIVA para ordernar um pair de Int, Float baseado em seu segundo valor
+bool sortBySecondFloat(const pair<int, float> &a, const pair<int, float> &b) {
     return a.second < b.second;
 }
 
