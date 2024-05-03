@@ -39,7 +39,7 @@ vector <vector <int> > decode (vector<float> solucao_particula,bool& debug){
 
     //Como o tamanho da particula é do tamanho da quantidade de tarefas, realiza o calculo da maquina
     for (int i = 0; i < solucao_particula_pair.size(); i++){
-        int temp_maquina = getLastDigit(solucao_particula_pair[i].second)%m;
+        int temp_maquina = getFirstDigit(solucao_particula_pair[i].second);
         solucao[temp_maquina].push_back(solucao_particula_pair[i].first);
     }
 

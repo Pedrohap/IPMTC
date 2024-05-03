@@ -35,6 +35,15 @@ int getLastDigit(float num) {
     return lastDigit;
 }
 
+//Retorna o inteiro do primeiro numero de um float
+int getFirstDigit(float num) {
+    string numStr = to_string(num);
+    char firstChar = numStr[0];
+    int firstDigit = firstChar - '0'; // Convertendo caractere para inteiro
+    return firstDigit;
+}
+
+
 void debugPrintMatriz(string menssagem, vector <vector <int>>& matriz){
     cout << menssagem << endl;
     for(int i = 0; i < matriz.size(); i++){

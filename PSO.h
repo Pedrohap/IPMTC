@@ -7,6 +7,7 @@
 
 int pso_int_bg_final;
 int pso_qtd_bg;
+int pso_qtd_int;
 
 extern int w;
 
@@ -21,8 +22,8 @@ public:
     vector <Particle> particles;
     vector <float> global_best_position;
     double global_best_fitness = numeric_limits<double>::infinity();
-    const int qtd_interacos = 100;
-    const int qtd_particulas = 100;
+    const int qtd_interacos = 1000;
+    const int qtd_particulas = 10*w;
     
     // PSO iterações
     Particle startPSO(){
@@ -32,9 +33,12 @@ public:
         Particle bestParcticle(w);
         pso_int_bg_final = 0;
         pso_qtd_bg = 0;
+        pso_qtd_int = 0;
         pso_all_init_fitness.clear();
         pso_all_final_fitness.clear();
-
+        
+        auto start_tempo_pso = chrono::high_resolution_clock::now();
+        
         for (int iter = 0; iter < qtd_interacos; iter++) {
             // Update global best
             for (int i = 0; i < qtd_particulas; i++) {
@@ -60,6 +64,14 @@ public:
             for (int i = 0; i < qtd_particulas; i++) {
                 particles[i].atualizarVelocidade(global_best_position);
                 particles[i].atualizarPosicao();
+            }
+            auto end_tempo_pso = chrono::high_resolution_clock::now();
+            auto duration_tempo_pso = chrono::duration_cast<chrono::duration<double>>(end_tempo_pso - start_tempo_pso);
+
+            pso_qtd_int++;
+            if(duration_tempo_pso.count() > 7200){
+                cout << "Tempo Limite estourado" << endl;
+                break;
             }
         }
 
