@@ -643,6 +643,15 @@ public:
 
         return qtd_trocas;
     }
+
+    //Retorna uma string contendo a quantidade de trocas e o makespan da solução
+    string detalheSolucao(vector <vector <int>> solucao){
+        string temp;
+        temp += "Quantidade de trocas de:" + to_string(getQuantidadeTrocas(solucao)) + "\n";
+        temp += "Makespan: " + to_string(funcaoAvaliativa(solucao)) + "\n";
+
+        return temp;
+    }
 };
 
 #endif

@@ -10,6 +10,10 @@ int pso_qtd_bg;
 
 extern int w;
 
+extern vector <float> pso_all_init_fitness;
+
+extern vector <float> pso_all_final_fitness;
+
 using namespace std;
 
 class PSO{
@@ -28,10 +32,16 @@ public:
         Particle bestParcticle(w);
         pso_int_bg_final = 0;
         pso_qtd_bg = 0;
+        pso_all_init_fitness.clear();
+        pso_all_final_fitness.clear();
 
         for (int iter = 0; iter < qtd_interacos; iter++) {
             // Update global best
             for (int i = 0; i < qtd_particulas; i++) {
+                if (iter == 0){
+                    pso_all_init_fitness.push_back(particles[i].initial_fitness);
+                }
+
                 if (particles[i].best_fitness < global_best_fitness) {
                     global_best_position = particles[i].best_position;
                     global_best_fitness = particles[i].best_fitness;
@@ -40,6 +50,10 @@ public:
                     bestParcticle = particles[i];
                     pso_qtd_bg++;
                     pso_int_bg_final = iter;
+                }
+
+                if(iter == qtd_interacos-1){
+                    pso_all_final_fitness.push_back(particles[i].best_fitness);
                 }
             }
             // Update each particle

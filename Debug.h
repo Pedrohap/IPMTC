@@ -35,7 +35,9 @@ public:
     Debug(/* args */){};
     ~Debug(){};
 
-    void printEntrada(){
+    void printEntrada(string fileName){
+        cout << endl;
+        cout << "Caminho do arquivo: " << fileName << endl;
         cout << "Quantidade de máquinas: " << m << endl;
         cout << "Quantidade de tarefas: " << w << endl;
         cout << "Quantidade de ferramentas: " << t << endl;

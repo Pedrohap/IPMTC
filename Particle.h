@@ -20,6 +20,7 @@ using namespace std;
 
 class Particle{
 public:
+    double initial_fitness;
     vector<float> position;
     vector<float> velocity;
     vector<float> best_position;
@@ -35,6 +36,7 @@ public:
             velocity[i] = 0.0;
         }
         fitness = evaluate(position,false);
+        initial_fitness = fitness;
         best_position = position;
         best_fitness = fitness;
     }
@@ -60,6 +62,21 @@ public:
             best_position = position;
             best_fitness = fitness;
         }
+    }
+
+    string toStringCsv(){
+        string saida = "";
+        for (int i = 0 ; i < position.size(); i++){
+            saida += to_string(position[i])  + "|";
+        }
+        saida += "\n";
+
+        return saida;
+    }
+
+    vector < vector <int> > getSolution(vector<float> particle_position){
+        bool debugs = false;
+        return decode(particle_position, debugs);
     }
 };
 

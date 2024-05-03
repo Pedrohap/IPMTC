@@ -9,3 +9,5 @@ for %%d in (8 15 25 50 100 200 ) do (
         loader < ./instances/%%djobs/%%i >> "solucoes\%%djobs\result.csv"
     )
 )
+
+::g++ -o loader loader.cpp -static-libgcc -static-libstdc++

@@ -13,6 +13,11 @@
 using namespace std;
 namespace fs = filesystem;
 
+//Metodo utilizado para resolução do problema
+    //RH = Heurisitca Randomica ou tradicional
+    //PSO = Particle Swarm Optimization
+const string METODO = "PSO";
+
 //Numero de Tarefas
 int w;
 
@@ -64,6 +69,12 @@ extern int pso_int_bg_final;
 //Quantas vezes foi encontrado um melhor global
 extern int pso_qtd_bg;
 
+//Todos os fitness das particulas Inicias
+vector <float> pso_all_init_fitness;
+
+//Todos os fitness das particulas Finais
+vector <float> pso_all_final_fitness;
+
 
 void processFile(const fs::path& filePath) {
     // Abre o arquivo para leitura
@@ -72,18 +83,103 @@ void processFile(const fs::path& filePath) {
     // Verifica se o arquivo foi aberto corretamente
     if (!file.is_open()) {
         cerr << "Erro ao abrir o arquivo: " << filePath << endl;
-        return;
+        exit(EXIT_FAILURE);
     }
-    
-    // Lê o número do arquivo
-    int number;
-    file >> number;
+
+    file >> m;
+    file >> w;
+    file >> t;
+    file >> c;
+    file >> p;
+
+    tempo_tarefa.assign(w,0);
+
+    matriz_ferramentas.assign(t, vector<int>(w, 0));
+    for (int i = 0; i < w; i++){
+        file >> tempo_tarefa[i];
+    }
+
+    for (int i = 0; i < t; i++){
+        for (int j = 0; j < w; j++){
+            file >> matriz_ferramentas[i][j];
+        }
+    }
+
+    IPMTC ipmtc;
+
+    auto start_tempo_total = chrono::high_resolution_clock::now();
+
+    if (METODO == "RH"){
+        vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
+        //vector <vector <int>> solucao = ipmtc.gerarSolucaoAleatoria(true);
+        double makespan = ipmtc.funcaoAvaliativa(solucao);
+
+        auto end_tempo_total = chrono::high_resolution_clock::now();
+        auto duration_tempo_total = chrono::duration_cast<chrono::duration<double>>(end_tempo_total - start_tempo_total);
+        
+        cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << "|" << qtd_trocas_pos_ref  << "|" << qtd_ite_ref << "|" << boolToString(houve_melhora) << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
+    } else if (METODO == "PSO"){
+        //Criação da pasta com os dados da particula
+        string caminho_do_arquivo = filePath.generic_string();
+        vector<string> fullFilePath = separarString(caminho_do_arquivo);
+
+        for (int i = 0; i < fullFilePath.size(); i++){
+            cout << fullFilePath[i] << " ";
+        }
+        cout << endl;
+        if (!fs::exists("Particles")){
+            fs::create_directory("Particles");
+        }
+        if (!fs::exists("Particles/"+fullFilePath[1])){
+            fs::create_directory("Particles/"+fullFilePath[1]);
+        }
+
+        ofstream particleData("Particles/"+fullFilePath[1]+"/"+fullFilePath[2]);
+
+        PSO pso;
+        Particle bestSolution = pso.startPSO();
+
+        for (int i = 0; i < pso_all_init_fitness.size() ; i++){
+            particleData << pso_all_init_fitness[i];
+            if (i < pso_all_init_fitness.size() - 1){
+                particleData << "|";
+            }
+        }
+
+        particleData << endl;
+
+        for (int i = 0; i < pso_all_final_fitness.size() ; i++){
+            particleData << pso_all_final_fitness[i];
+            if (i < pso_all_final_fitness.size() - 1){
+                particleData << "|";
+            }
+        }
+        particleData << endl;
+
+        vector <float> temp_postion_particle = bestSolution.best_position;
+        vector <vector <int>> temp_solution = bestSolution.getSolution(temp_postion_particle);
+
+        particleData << debugStringMatriz("A melhor solução desse PSO é:",temp_solution);
+        particleData << ipmtc.detalheSolucao(temp_solution);
+
+        particleData.close();
+
+        auto end_tempo_total = chrono::high_resolution_clock::now();
+        auto duration_tempo_total = chrono::duration_cast<chrono::duration<double>>(end_tempo_total - start_tempo_total);
+
+        if (!fs::exists("solucoes")){
+            fs::create_directory("solucoes");
+        }
+
+        ofstream resultData("solucoes/resultPSO.csv", ios::app);
+        resultData << fullFilePath[2] << "|" << bestSolution.fitness << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << duration_tempo_total.count()<< endl;
+
+        resultData.close();
+
+    }
     
     // Fecha o arquivo
     file.close();
-    
-    // Imprime o número lido
-    cout << "Número do arquivo " << filePath << ": " << number << endl;
 }
 
 void traverseDirectory(const fs::path& directoryPath, const function<void(const fs::path&)>& processFunc) {
@@ -97,79 +193,30 @@ void traverseDirectory(const fs::path& directoryPath, const function<void(const 
     }
 }
 
-void readFile(){
-    cin >> m;
-    cin >> w;
-    cin >> t;
-    cin >> c;
-    cin >> p;
-
-    tempo_tarefa.assign(w,0);
-
-    matriz_ferramentas.assign(t, vector<int>(w, 0));
-    for (int i = 0; i < w; i++){
-        cin >> tempo_tarefa[i];
+void readFiles(){
+    fs::path mainDirectory = "testGroup"; // Substitua pelo caminho da sua pasta principal
+    
+    if (!fs::exists(mainDirectory) || !fs::is_directory(mainDirectory)) {
+        cerr << "Pasta principal não encontrada!" << endl;
+        exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < t; i++){
-        for (int j = 0; j < w; j++){
-            cin >> matriz_ferramentas[i][j];
-        }
-    }
+    traverseDirectory(mainDirectory, processFile);
 }
 
 int main (){
     setlocale(LC_ALL, "pt_BR.UTF-8");
-    
-    fs::path mainDirectory = "instances"; // Substitua pelo caminho da sua pasta principal
-    
-    if (!fs::exists(mainDirectory) || !fs::is_directory(mainDirectory)) {
-        cerr << "Pasta principal não encontrada!" << endl;
-        return 1;
+
+    if(METODO == "PSO"){
+        ofstream resultData("solucoes/resultPSO.csv");
+
+        resultData << "NOME_INSTANCIA|MAKESPAN|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|TEMPO_EXEC\n";
+
+        resultData.close();
     }
 
-    traverseDirectory(mainDirectory, processFile);
-
-    readFile();
+    readFiles();
     
-    IPMTC ipmtc;
-
-    //RH = Heurisitca Randomica ou tradicional
-    //PSO = Particle Swarm Optimization
-    string metodo = "PSO";
-
-    //debug.printEntrada();
-
-    auto start_tempo_total = chrono::high_resolution_clock::now();
-
-    if (metodo == "RH"){
-        vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
-        //vector <vector <int>> solucao = ipmtc.gerarSolucaoAleatoria(true);
-        double makespan = ipmtc.funcaoAvaliativa(solucao);
-
-        auto end_tempo_total = chrono::high_resolution_clock::now();
-        auto duration_tempo_total = chrono::duration_cast<chrono::duration<double>>(end_tempo_total - start_tempo_total);
-        
-        cout << val_sol_inicial << "|" << qtd_trocas_ini << "|" << val_sol_pos_ref << "|" << qtd_trocas_pos_ref  << "|" << qtd_ite_ref << "|" << boolToString(houve_melhora) << "|" << duration_HC.count() << "|" << duration_REF.count() <<"|" <<duration_tempo_total.count()<< endl;
-    } else if (metodo == "PSO"){
-        //Criação da pasta com os dados da particula
-        /*if (!fs::exists("Particles")){
-            fs::create_directory("Particles");
-        }
-        string arquivo = "Particles/" + "m=" + m + "_n="
-
-        ofstream arquivo_saida();*/
-
-        PSO pso;
-        Particle bestSolution = pso.startPSO();
-
-        auto end_tempo_total = chrono::high_resolution_clock::now();
-        auto duration_tempo_total = chrono::duration_cast<chrono::duration<double>>(end_tempo_total - start_tempo_total);
-
-        //Makespan|QTD de trocas|Iteração que achou o melhor global|Quantos vezes foi encontrado um melhor global|Tempo de Execução
-        cout << bestSolution.fitness << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << duration_tempo_total.count()<< endl;
-    }
-
     //A Saida tem que conter as Seguintes informaçoes:
     //* Valor da solução antes do refinamento
     //* Valor da solução após o refinamento

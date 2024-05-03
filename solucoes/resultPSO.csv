@@ -1,0 +1,7 @@
+NOME_INSTANCIA|MAKESPAN|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|TEMPO_EXEC
+instance250_m=2_n=15_l=15_c=5_s=0|362|55|14|4.1052
+instance731_m=2_n=25_l=15_c=10_s=1|708|20|10|6.35906
+instance8_m=2_n=8_l=15_c=5_s=1|344|26|9|2.36873
+instanceLarge1299_m=9_n=200_l=40_c=30_s=2|993|0|6|1035.14
+instanceLarge6_m=3_n=50_l=30_c=10_s=2|632|59|8|29.5709
+instanceLarge737_m=7_n=100_l=30_c=10_s=1|4597|73|8|49.5721

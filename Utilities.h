@@ -5,8 +5,6 @@
 #include <random>
 #include <string>
 
-
-
 using namespace std;
 
 int randomInt(int min, int max){
@@ -45,6 +43,19 @@ void debugPrintMatriz(string menssagem, vector <vector <int>>& matriz){
         }
         cout << endl;
     }
+}
+
+string debugStringMatriz(string menssagem, vector <vector <int>> matriz){
+    string temp;
+    temp += menssagem + "\n";
+    for(int i = 0; i < matriz.size(); i++){
+        for(int j = 0; j < matriz[i].size(); j++){
+            temp += to_string(matriz[i][j]) + " ";
+        }
+        temp += "\n";
+    }
+
+    return temp;
 }
 
 void debugPrintVectorPair(string menssagem, vector <pair <int,int>>& vetor){
@@ -126,6 +137,22 @@ string boolToString(bool value){
     } else {
         return "não";
     }
+}
+
+vector<string> separarString(const string entrada) {
+    vector<string> partes;
+    string entrada_copy = entrada; // Faz uma cópia da entrada para poder modificá-la
+    string parte;
+    size_t pos = 0;
+    while ((pos = entrada_copy.find('/')) != string::npos) {
+        parte = entrada_copy.substr(0, pos);
+        partes.push_back(parte);
+        entrada_copy.erase(0, pos + 1);
+    }
+    pos = entrada_copy.find('.');
+    partes.push_back(entrada_copy.substr(0, pos)); // Adiciona a parte antes do ponto
+    partes.push_back(entrada_copy.substr(pos));    // Adiciona a extensão do arquivo
+    return partes;
 }
 
 
