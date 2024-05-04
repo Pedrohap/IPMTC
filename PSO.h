@@ -70,6 +70,9 @@ public:
 
             pso_qtd_int++;
             if(duration_tempo_pso.count() > 7200){
+                for (int i = 0; i < qtd_particulas; i++) {
+                    pso_all_final_fitness.push_back(particles[i].best_fitness);
+                }
                 cout << "Tempo Limite estourado" << endl;
                 break;
             }
