@@ -115,9 +115,9 @@ void processFile(const fs::path& filePath) {
 
     IPMTC ipmtc;
 
-    auto start_tempo_total = chrono::high_resolution_clock::now();
 
     for (int exec = 0 ; exec < EXECUCOES ; exec++){
+        auto start_tempo_total = chrono::high_resolution_clock::now();
         if (METODO == "RH"){
             vector <vector <int>> solucao = ipmtc.gerarSolucao(false);
             //vector <vector <int>> solucao = ipmtc.gerarSolucaoAleatoria(true);
