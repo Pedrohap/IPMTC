@@ -9,3 +9,11 @@ O IPMTC envolve a alocação de tarefas em máquinas paralelas idênticas, levan
 ## Implementação
 
 O projeto é desenvolvido em C++ e visa oferecer uma solução eficiente para o IPMTC. Inclui a implementação de uma heurística e uma metaheurística para encontrar soluções ótimas ou próximas do ótimo.
+
+## Como Compilar
+
+Para compilar no Windows com MinGW use: `g++ -o loader loader.cpp -static-libgcc -static-libstdc++`
+
+Para compilar no Linux use: `g++ -o loader loader.cpp -static-libgcc -static-libstdc++ -std=c++17`
+
+Execute o arquivo `loader` e o programma será executado.
