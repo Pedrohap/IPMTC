@@ -36,6 +36,7 @@ public:
         pso_qtd_int = 0;
         pso_all_init_fitness.clear();
         pso_all_final_fitness.clear();
+        bool pso_have_melhora = false;
         
         auto start_tempo_pso = chrono::high_resolution_clock::now();
         
@@ -52,13 +53,17 @@ public:
 
                     //Salva a particula como a melhor global
                     bestParcticle = particles[i];
-                    pso_qtd_bg++;
+                    pso_have_melhora = true;
                     pso_int_bg_final = iter;
                 }
 
                 if(iter == qtd_interacos-1){
                     pso_all_final_fitness.push_back(particles[i].best_fitness);
                 }
+            }
+            if (pso_have_melhora){
+                pso_qtd_bg++;
+                pso_have_melhora = false;
             }
             // Update each particle
             for (int i = 0; i < qtd_particulas; i++) {

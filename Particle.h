@@ -11,8 +11,8 @@
 
 const double xmin = 0.0;
 double xmax;
-const double c1 = 1.0;
-const double c2 = 1.0;
+const double c1 = 2.0;
+const double c2 = 2.0;
 
 //Inercia ou o "w estranho"
 const double omega = 1.0;
