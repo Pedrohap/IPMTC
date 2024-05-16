@@ -84,6 +84,11 @@ vector <float> pso_all_final_fitness;
 //Quantidade de interações que o PSO executou
 extern int pso_qtd_int;
 
+//iRace
+double c1;
+double c2;
+double omega;
+
 void processFile(const fs::path& filePath) {
     // Abre o arquivo para leitura
     ifstream file(filePath);
@@ -225,6 +230,9 @@ int main (){
     setlocale(LC_ALL, "pt_BR.UTF-8");
 
     if(METODO == "PSO"){
+        omega = 0.0;
+        c1 = 2.0;
+        c2 = 2.0;
         ofstream resultData("solucoes/resultPSO.csv");
 
         resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|TEMPO_EXEC\n";

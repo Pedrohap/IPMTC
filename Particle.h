@@ -11,11 +11,16 @@
 
 const double xmin = 0.0;
 double xmax;
-const double c1 = 2.0;
-const double c2 = 2.0;
+//const double c1 = 2.0;
+//const double c2 = 2.0;
 
 //Inercia ou o "w estranho"
-const double omega = 1.0;
+//const double omega = 1.0;
+
+//iRace Mode
+extern double c1;
+extern double c2;
+extern double omega;
 
 extern int m;
 extern int w;
