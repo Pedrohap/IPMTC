@@ -16,4 +16,8 @@ Para compilar no Windows com MinGW use: `g++ -o loader loader.cpp -static-libgcc
 
 Para compilar no Linux use: `g++ -o loader loader.cpp -static-libgcc -static-libstdc++ -std=c++17`
 
+Para compilar o target-runner no Windows com MinGW use: `g++ -o target-runner target-runner.cpp -static-libgcc -static-libstdc++`
+
+Para compilar o target-runner no Linux use: `g++ -o target-runner target-runner.cpp -static-libgcc -static-libstdc++ -std=c++17`
+
 Execute o arquivo `loader` e o programma será executado.
