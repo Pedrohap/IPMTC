@@ -69,9 +69,9 @@ public:
         for (int i = 0; i < w; i++) {
             position[i] += velocity[i];
             if (position[i] < xmin)
-                position[i] = xmin;
+                position[i] += xmax;
             else if (position[i] > xmax)
-                position[i] = xmax;
+                position[i] -= xmax;
         }
         fitness = evaluate(position,false);
         if (fitness < best_fitness) {
