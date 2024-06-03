@@ -68,10 +68,17 @@ public:
     void atualizarPosicao() {
         for (int i = 0; i < w; i++) {
             position[i] += velocity[i];
-            if (position[i] < xmin)
+            while (position[i] < xmin){
                 position[i] += xmax;
-            else if (position[i] > xmax)
+            }
+            while (position[i] > xmax){
                 position[i] -= xmax;
+            }
+
+            if (position[i] > xmax || position[i] < xmin){
+                cout << "ERRO FATAL O LOOP DE ARREDONDAMENTO FALHOU" << endl;
+                exit(EXIT_FAILURE);
+            }
         }
         fitness = evaluate(position,false);
         if (fitness < best_fitness) {
