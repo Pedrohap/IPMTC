@@ -22,7 +22,7 @@ const string METODO = "PSO";
 const int EXECUCOES = 10;
 
 //Nome da pasta principal que carregara as intacias
-const string PASTA_PRINCIPAL = "5% Test";
+const string PASTA_PRINCIPAL = "5% Test SmallJobs";
 
 //Numero de Tarefas
 int w;
@@ -83,6 +83,12 @@ vector <float> pso_all_final_fitness;
 
 //Quantidade de interações que o PSO executou
 extern int pso_qtd_int;
+
+//Houve melhore na busca local do 2APT
+bool melhora_twoapt;
+
+//Houve melhore na busca local do 2Swap
+bool melhora_twoswap;
 
 //iRace
 double c1;
@@ -192,7 +198,7 @@ void processFile(const fs::path& filePath) {
             }
 
             ofstream resultData("solucoes/resultPSO.csv", ios::app);
-            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << duration_tempo_total.count()<< endl;
+            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << melhora_twoapt <<"|" << melhora_twoswap <<"|" << duration_tempo_total.count()<< endl;
 
             resultData.close();
 
@@ -235,7 +241,10 @@ int main (){
         c2 = 2.0;
         ofstream resultData("solucoes/resultPSO.csv");
 
-        resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|TEMPO_EXEC\n";
+        melhora_twoapt = false;
+        melhora_twoswap = false;
+
+        resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MELHORA_2APT|MELHORA_2SWAP|TEMPO_EXEC\n";
 
         resultData.close();
     }

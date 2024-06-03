@@ -5,6 +5,7 @@
 #include <random>
 #include <string>
 
+
 using namespace std;
 
 int randomInt(int min, int max){
@@ -99,11 +100,11 @@ void removeDoVector (vector <int>& vetor, int element){
     }
 }
 
-void shuffleVec (vector<int>& vetor){
+template<typename T>
+void shuffleVec (vector<T>& vetor){
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
     
     shuffle (vetor.begin(), vetor.end(), default_random_engine(seed));
-
 }
 
 int getPosElementoVector(vector <int>& vetor,int elemento){
@@ -124,9 +125,14 @@ bool sortBySecond(const pair<int, int> &a, const pair<int, int> &b) {
     return a.second < b.second;
 }
 
-//Função EXCLUSIVA para ordernar um pair de Int, Float baseado em seu segundo valor
+//Função EXCLUSIVA para ordernar em forma crecente um pair de Int, Float baseado em seu segundo valor
 bool sortBySecondFloat(const pair<int, float> &a, const pair<int, float> &b) {
     return a.second < b.second;
+}
+
+//Função EXCLUSIVA para ordernar em forma decrecente um pair de Int, Float baseado em seu segundo valor
+bool sortBySecondFloatDecrecente(const pair<int, float> &a, const pair<int, float> &b) {
+    return a.second > b.second;
 }
 
 //Função EXCLSUIVA de comparação para o sort dos tuple
@@ -164,5 +170,19 @@ vector<string> separarString(const string entrada) {
     return partes;
 }
 
+//Recebe um vetor e inverte o intervalo nele contido;
+template<typename T>
+void inverterIntervalo(vector<T>& vetor, int inicio, int fim) {
+    if (inicio < 0 || fim >= vetor.size() || inicio >= fim) {
+        cout << "Intervalo inválido." << endl;
+        return;
+    }
+
+    while (inicio < fim) {
+        swap(vetor[inicio], vetor[fim]);
+        inicio++;
+        fim--;
+    }
+}
 
 #endif

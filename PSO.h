@@ -2,6 +2,7 @@
 #define PSO_H
 
 #include "Particle.h"
+#include "LocalSearch.h"
 #include <vector>
 #include <cmath>
 
@@ -21,6 +22,10 @@ class PSO{
 public:
     vector <Particle> particles;
     vector <float> global_best_position;
+
+    //Vector de pair onde tem o fitness de todas as paticulas, one first é a posição da particula e o second o fitness
+    vector <pair <int,float>> all_particles_fitness;
+
     double global_best_fitness = numeric_limits<double>::infinity();
     const int qtd_interacos = 1000;
     const int qtd_particulas = 10*w;
@@ -70,6 +75,20 @@ public:
                 particles[i].atualizarVelocidade(global_best_position);
                 particles[i].atualizarPosicao();
             }
+
+            //Limpa, Preenche e ordena pelo maior para selecionar 10% para a melhora
+            //Inicio da Busca local
+            all_particles_fitness.clear();
+            int porcentagem = qtd_particulas * 0.1;
+            for (int i = 0; i < qtd_particulas; i++) {
+                all_particles_fitness.push_back(pair <int,float> (i , particles[i].fitness));
+            }
+            sort(all_particles_fitness.begin(), all_particles_fitness.end(),sortBySecondFloatDecrecente);
+            for (int i = 0 ; i < porcentagem ; i++){
+                twoAPT(particles[all_particles_fitness[i].first]);
+                twoSwap(particles[all_particles_fitness[i].first]);
+            }
+
             auto end_tempo_pso = chrono::high_resolution_clock::now();
             auto duration_tempo_pso = chrono::duration_cast<chrono::duration<double>>(end_tempo_pso - start_tempo_pso);
 

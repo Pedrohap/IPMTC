@@ -52,6 +52,16 @@ public:
         best_fitness = fitness;
     }
 
+    //Função para caso ocorra alguma alteração externa na particle, sendo necessario recalibrar os valore
+    void recalcularParticle(){
+        fitness = evaluate(position,false);
+
+        if(best_fitness > fitness){
+            best_fitness = fitness;
+            best_position = position;
+        }
+    }
+
     void atualizarVelocidade(vector<float>& global_best_position) {
         for (int i = 0; i < w; i++) {
             float r1 = randomFloat(0,1);
