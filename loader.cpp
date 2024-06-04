@@ -90,6 +90,12 @@ bool melhora_twoapt;
 //Houve melhore na busca local do 2Swap
 bool melhora_twoswap;
 
+//Media de melhora 2APT
+float media_melhora_twoapt;
+
+//Media de melhora 2Swap
+float media_melhora_twoswap;
+
 //iRace
 double c1;
 double c2;
@@ -198,7 +204,7 @@ void processFile(const fs::path& filePath) {
             }
 
             ofstream resultData("solucoes/resultPSO.csv", ios::app);
-            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << melhora_twoapt <<"|" << melhora_twoswap <<"|" << duration_tempo_total.count()<< endl;
+            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << media_melhora_twoapt <<"|" << media_melhora_twoswap <<"|" << duration_tempo_total.count()<< endl;
 
             resultData.close();
 
@@ -244,7 +250,10 @@ int main (){
         melhora_twoapt = false;
         melhora_twoswap = false;
 
-        resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MELHORA_2APT|MELHORA_2SWAP|TEMPO_EXEC\n";
+        media_melhora_twoapt = 0;
+        media_melhora_twoswap = 0;
+
+        resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_2APT|MEDIA_MELHORA_2SWAP|TEMPO_EXEC\n";
 
         resultData.close();
     }

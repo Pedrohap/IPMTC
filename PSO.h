@@ -102,6 +102,9 @@ public:
             }
         }
 
+        media_melhora_twoapt = media_melhora_twoapt/((qtd_particulas*0.1)*pso_qtd_int);
+        media_melhora_twoswap = media_melhora_twoswap/((qtd_particulas*0.1)*pso_qtd_int);
+
         return bestParcticle;
     }
 

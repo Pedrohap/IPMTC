@@ -13,6 +13,12 @@ extern bool melhora_twoapt;
 //Houve melhore na busca local do 2Swap
 extern bool melhora_twoswap;
 
+//Media de melhora 2APT
+extern float media_melhora_twoapt;
+
+//Media de melhora 2Swap
+extern float media_melhora_twoswap;
+
 using namespace std;
 
 //Fazer o 2 APT, que pega uma particula (vetor de float), seleciona um 
@@ -41,6 +47,7 @@ void twoAPT (Particle &particula){
         new_particula.recalcularParticle();
         if (new_particula.fitness < particula.fitness){
             if (particula.best_fitness > new_particula.fitness){
+                media_melhora_twoapt += (particula.best_fitness - new_particula.fitness);
                 melhora_twoapt = true;
             }
             particula = new_particula;
@@ -73,6 +80,7 @@ void twoSwap (Particle &particula){
         new_particula.recalcularParticle();
         if (new_particula.fitness < particula.fitness){
             if (particula.best_fitness > new_particula.fitness){
+                media_melhora_twoswap += (particula.best_fitness - new_particula.fitness);
                 melhora_twoswap = true;
             }
             particula = new_particula;
