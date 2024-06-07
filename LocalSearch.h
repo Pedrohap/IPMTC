@@ -44,6 +44,7 @@ void twoAPT (Particle &particula){
     Particle new_particula = particula;
     for (int i = 0; i < porcentagem; i++){
         inverterIntervalo(new_particula.position , posicoes[i].first, posicoes[i].second);
+        inverterIntervalo(new_particula.velocity , posicoes[i].first, posicoes[i].second);
         new_particula.recalcularParticle();
         if (new_particula.fitness < particula.fitness){
             if (particula.best_fitness > new_particula.fitness){
@@ -77,6 +78,7 @@ void twoSwap (Particle &particula){
     Particle new_particula = particula;
     for (int i = 0; i < porcentagem; i++){
         swap(new_particula.position[posicoes[i].first], new_particula.position[posicoes[i].second]);
+        swap(new_particula.velocity[posicoes[i].first], new_particula.velocity[posicoes[i].second]);
         new_particula.recalcularParticle();
         if (new_particula.fitness < particula.fitness){
             if (particula.best_fitness > new_particula.fitness){

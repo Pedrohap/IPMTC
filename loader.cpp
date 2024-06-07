@@ -96,6 +96,9 @@ float media_melhora_twoapt;
 //Media de melhora 2Swap
 float media_melhora_twoswap;
 
+//Quantidade de melhoras causada pela busca local no MELHOR Global
+int ls_qtd_melhora_global;
+
 //iRace
 double c1;
 double c2;
@@ -204,7 +207,7 @@ void processFile(const fs::path& filePath) {
             }
 
             ofstream resultData("solucoes/resultPSO.csv", ios::app);
-            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << media_melhora_twoapt <<"|" << media_melhora_twoswap <<"|" << duration_tempo_total.count()<< endl;
+            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << media_melhora_twoapt <<"|" << media_melhora_twoswap <<"|" << ls_qtd_melhora_global << "|" << duration_tempo_total.count() << endl;
 
             resultData.close();
 
@@ -250,10 +253,7 @@ int main (){
         melhora_twoapt = false;
         melhora_twoswap = false;
 
-        media_melhora_twoapt = 0;
-        media_melhora_twoswap = 0;
-
-        resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_2APT|MEDIA_MELHORA_2SWAP|TEMPO_EXEC\n";
+        resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_2APT|MEDIA_MELHORA_2SWAP|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
 
         resultData.close();
     }

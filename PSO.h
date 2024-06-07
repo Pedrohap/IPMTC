@@ -16,6 +16,10 @@ extern vector <float> pso_all_init_fitness;
 
 extern vector <float> pso_all_final_fitness;
 
+extern float media_melhora_twoapt;
+extern float media_melhora_twoswap;
+extern int ls_qtd_melhora_global;
+
 using namespace std;
 
 class PSO{
@@ -42,6 +46,10 @@ public:
         pso_all_init_fitness.clear();
         pso_all_final_fitness.clear();
         bool pso_have_melhora = false;
+
+        media_melhora_twoapt = 0;
+        media_melhora_twoswap = 0;
+        ls_qtd_melhora_global = 0;
         
         auto start_tempo_pso = chrono::high_resolution_clock::now();
         
@@ -66,6 +74,7 @@ public:
                     pso_all_final_fitness.push_back(particles[i].best_fitness);
                 }
             }
+
             if (pso_have_melhora){
                 pso_qtd_bg++;
                 pso_have_melhora = false;
@@ -84,9 +93,30 @@ public:
                 all_particles_fitness.push_back(pair <int,float> (i , particles[i].fitness));
             }
             sort(all_particles_fitness.begin(), all_particles_fitness.end(),sortBySecondFloatDecrecente);
+            
+            bool melhorou_global = false;
             for (int i = 0 ; i < porcentagem ; i++){
                 twoAPT(particles[all_particles_fitness[i].first]);
                 twoSwap(particles[all_particles_fitness[i].first]);
+            }
+
+            //Reatualiza o Melhor Global
+            for (int i = 0; i < qtd_particulas; i++) {
+                //Adicionar a quantidade de melhoras na melhor global baseado na busca local
+                if (particles[i].best_fitness < global_best_fitness) {
+                    ls_qtd_melhora_global++;
+                    global_best_position = particles[i].best_position;
+                    global_best_fitness = particles[i].best_fitness;
+
+                    //Salva a particula como a melhor global
+                    bestParcticle = particles[i];
+                    pso_have_melhora = true;
+                    pso_int_bg_final = iter;
+                }
+
+                if(iter == qtd_interacos-1){
+                    pso_all_final_fitness.push_back(particles[i].best_fitness);
+                }
             }
 
             auto end_tempo_pso = chrono::high_resolution_clock::now();
