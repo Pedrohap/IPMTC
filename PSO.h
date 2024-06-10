@@ -94,7 +94,6 @@ public:
             }
             sort(all_particles_fitness.begin(), all_particles_fitness.end(),sortBySecondFloatDecrecente);
             
-            bool melhorou_global = false;
             for (int i = 0 ; i < porcentagem ; i++){
                 twoAPT(particles[all_particles_fitness[i].first]);
                 twoSwap(particles[all_particles_fitness[i].first]);

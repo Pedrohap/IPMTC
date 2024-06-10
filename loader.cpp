@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <string>
 
 using namespace std;
 namespace fs = filesystem;
@@ -98,6 +99,9 @@ float media_melhora_twoswap;
 
 //Quantidade de melhoras causada pela busca local no MELHOR Global
 int ls_qtd_melhora_global;
+
+//Vetor de todas as intancias que já foram executadas;
+vector <string> runned_instances;
 
 //iRace
 double c1;
@@ -221,9 +225,26 @@ void processFile(const fs::path& filePath) {
 
 void traverseDirectory(const fs::path& directoryPath, const function<void(const fs::path&)>& processFunc) {
     for (const auto& entry : fs::directory_iterator(directoryPath)) {
+        runned_instances.clear();
+        ifstream runing_intances("runing.txt");
+        string temp_linha;
+        if (runing_intances.is_open()){
+            while (getline(runing_intances, temp_linha)){
+                runned_instances.push_back(temp_linha);
+            }
+        }
+        runing_intances.close();
         const auto& path = entry.path();
         if (fs::is_regular_file(path)) {
-            processFunc(path);
+            string caminho_do_arquivo = path.generic_string();
+            vector<string> fullFilePath = separarString(caminho_do_arquivo);
+            auto iterator = find(runned_instances.begin(),runned_instances.end(),fullFilePath[2]);
+            if (!(iterator != runned_instances.end())) {
+                ofstream runing_intances("runing.txt", ios::app);
+                runing_intances << fullFilePath[2] << "\n";
+                runing_intances.close();
+                processFunc(path);
+            }
         } else if (fs::is_directory(path)) {
             traverseDirectory(path, processFunc); // recursivamente navega em subdiretórios
         }
@@ -257,7 +278,8 @@ int main (){
 
         resultData.close();
     }
-
+    
+ 
     readFiles();
     
     //A Saida tem que conter as Seguintes informaçoes:

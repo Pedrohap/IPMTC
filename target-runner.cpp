@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <string>
 
 using namespace std;
 namespace fs = filesystem;
@@ -83,6 +84,21 @@ vector <float> pso_all_final_fitness;
 
 //Quantidade de interações que o PSO executou
 extern int pso_qtd_int;
+
+//Houve melhore na busca local do 2APT
+bool melhora_twoapt;
+
+//Houve melhore na busca local do 2Swap
+bool melhora_twoswap;
+
+//Media de melhora 2APT
+float media_melhora_twoapt;
+
+//Media de melhora 2Swap
+float media_melhora_twoswap;
+
+//Quantidade de melhoras causada pela busca local no MELHOR Global
+int ls_qtd_melhora_global;
 
 //iRace
 double c1;

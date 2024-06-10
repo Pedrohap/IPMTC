@@ -139,7 +139,7 @@ seed = 786433
 
 ## Number of calls to targetRunner to execute in parallel. Less than 2
 ## means calls to targetRunner are sequentially executed.
-parallel = 16
+parallel = 12
 
 ## Enable/disable load-balancing when executing experiments in
 ## parallel. Load-balancing makes better use of computing resources, but
