@@ -23,7 +23,7 @@ const string METODO = "PSO";
 const int EXECUCOES = 10;
 
 //Nome da pasta principal que carregara as intacias
-const string PASTA_PRINCIPAL = "5% Test SmallJobs";
+const string PASTA_PRINCIPAL = "5% Test SmallJobs with some LargerJobs";
 
 //Numero de Tarefas
 int w;
