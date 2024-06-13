@@ -92,6 +92,7 @@ public:
         }
         fitness = evaluate(position,false);
         if (fitness < best_fitness) {
+            //Rodar busca local aqui
             best_position = position;
             best_fitness = fitness;
         }

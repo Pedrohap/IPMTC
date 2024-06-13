@@ -6,6 +6,9 @@
 #include <vector>
 #include <cmath>
 
+//Cap de quantidade de particulas
+const int CAP_PARTICULAS = 1000;
+
 int pso_int_bg_final;
 int pso_qtd_bg;
 int pso_qtd_int;
@@ -32,10 +35,15 @@ public:
 
     double global_best_fitness = numeric_limits<double>::infinity();
     const int qtd_interacos = 1000;
-    const int qtd_particulas = 10*w;
+    int qtd_particulas = 10*w;
     
     // PSO iterações
     Particle startPSO(){
+        //Cap de qtd de particulas
+        if (qtd_particulas > CAP_PARTICULAS){
+            qtd_particulas = CAP_PARTICULAS;
+        }
+
         for (int i = 0; i < qtd_particulas ; i++){
             particles.push_back(Particle(w));
         }
@@ -58,6 +66,7 @@ public:
             for (int i = 0; i < qtd_particulas; i++) {
                 if (iter == 0){
                     pso_all_init_fitness.push_back(particles[i].initial_fitness);
+                    //Rodar busca local para 50% das particulas
                 }
 
                 if (particles[i].best_fitness < global_best_fitness) {

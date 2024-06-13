@@ -38,7 +38,7 @@ void twoAPT (Particle &particula){
 
     //Mistura esse vetor e seleciona 10% deles
     shuffleVec(posicoes);
-    int porcentagem = tamanho_particula * 0.1;
+    int porcentagem = posicoes.size() * 0.1;
     
     //Realiza as interações, se alguma houver melhora substituia a original e vida que segue
     Particle new_particula = particula;
@@ -72,7 +72,7 @@ void twoSwap (Particle &particula){
 
     //Mistura esse vetor e seleciona 10% deles
     shuffleVec(posicoes);
-    int porcentagem = tamanho_particula * 0.1;
+    int porcentagem = posicoes.size() * 0.1;
     
     //Realiza as interações, se alguma houver melhora substituia a original e vida que segue
     Particle new_particula = particula;
