@@ -24,7 +24,7 @@ using namespace std;
 //Fazer o 2 APT, que pega uma particula (vetor de float), seleciona um 
 //intervalo de 2 pontos e inverte a ordem nesses 2 pontos
 
-void twoAPT (Particle &particula){
+void twoOPT (Particle &particula){
     //Pegar o tamanho da particula
     int tamanho_particula = particula.position.size();
     
@@ -38,7 +38,7 @@ void twoAPT (Particle &particula){
 
     //Mistura esse vetor e seleciona 10% deles
     shuffleVec(posicoes);
-    int porcentagem = posicoes.size() * 0.1;
+    int porcentagem = posicoes.size() * 1;
     
     //Realiza as interações, se alguma houver melhora substituia a original e vida que segue
     Particle new_particula = particula;
@@ -72,7 +72,7 @@ void twoSwap (Particle &particula){
 
     //Mistura esse vetor e seleciona 10% deles
     shuffleVec(posicoes);
-    int porcentagem = posicoes.size() * 0.1;
+    int porcentagem = posicoes.size() * 1;
     
     //Realiza as interações, se alguma houver melhora substituia a original e vida que segue
     Particle new_particula = particula;

@@ -93,7 +93,8 @@ public:
                 particles[i].atualizarVelocidade(global_best_position);
                 particles[i].atualizarPosicao();
             }
-
+            
+            /* Pra liberar a busca local só remover esse intervalo de comentario
             //Limpa, Preenche e ordena pelo maior para selecionar 10% para a melhora
             //Inicio da Busca local
             all_particles_fitness.clear();
@@ -104,7 +105,7 @@ public:
             sort(all_particles_fitness.begin(), all_particles_fitness.end(),sortBySecondFloatDecrecente);
             
             for (int i = 0 ; i < porcentagem ; i++){
-                twoAPT(particles[all_particles_fitness[i].first]);
+                twoOPT(particles[all_particles_fitness[i].first]);
                 twoSwap(particles[all_particles_fitness[i].first]);
             }
 
@@ -125,7 +126,7 @@ public:
                 if(iter == qtd_interacos-1){
                     pso_all_final_fitness.push_back(particles[i].best_fitness);
                 }
-            }
+            }*/
 
             auto end_tempo_pso = chrono::high_resolution_clock::now();
             auto duration_tempo_pso = chrono::duration_cast<chrono::duration<double>>(end_tempo_pso - start_tempo_pso);
