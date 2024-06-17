@@ -75,7 +75,8 @@ public:
         
     }
 
-    void atualizarPosicao() {
+    //Retorna true, se houve melhora local e retorna false caso não
+    bool atualizarPosicao() {
         for (int i = 0; i < w; i++) {
             position[i] += velocity[i];
             while (position[i] < xmin){
@@ -92,12 +93,12 @@ public:
         }
         fitness = evaluate(position,false);
         if (fitness < best_fitness) {
-            twoOPT(*this);
-            twoSwap(*this);
-
             best_position = position;
             best_fitness = fitness;
+
+            return true;
         }
+        return false;
     }
 
     string toStringCsv(vector<float> particle_position){

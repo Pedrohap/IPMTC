@@ -91,7 +91,10 @@ public:
             // Update each particle
             for (int i = 0; i < qtd_particulas; i++) {
                 particles[i].atualizarVelocidade(global_best_position);
-                particles[i].atualizarPosicao();
+                if(particles[i].atualizarPosicao()){
+                    twoOPT(particles[i]);
+                    twoSwap(particles[i]);
+                }
             }
             
             /* Pra liberar a busca local só remover esse intervalo de comentario
