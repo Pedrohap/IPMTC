@@ -10,6 +10,7 @@
 #include <fstream>
 #include <functional>
 #include <string>
+#include <omp.h>
 
 using namespace std;
 namespace fs = filesystem;
@@ -264,6 +265,7 @@ void readFiles(){
 
 int main (){
     setlocale(LC_ALL, "pt_BR.UTF-8");
+    omp_set_num_threads(10);
 
     if(METODO == "PSO"){
         omega = 0.0;
