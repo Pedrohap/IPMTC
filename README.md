@@ -12,7 +12,7 @@ O projeto é desenvolvido em C++ e visa oferecer uma solução eficiente para o 
 
 ## Como Compilar
 
-Para compilar no Windows com MinGW use: `g++ -o loader loader.cpp -static-libgcc -static-libstdc++`
+Para compilar no Windows com MinGW use: `g++ -fopenmp -O3 -march=native -o loader loader.cpp -static-libgcc -static-libstdc++`
 
 Para compilar no Linux use: `g++ -o loader loader.cpp -static-libgcc -static-libstdc++ -std=c++17`
 
