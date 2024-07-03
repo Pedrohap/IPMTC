@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
-#include <omp.h>
 
 #include "Utilities.h"
 #include "Decoder.h"
@@ -64,7 +63,6 @@ public:
     }
 
     void atualizarVelocidade(vector<float>& global_best_position) {
-        #pragma omp parallel for
         for (int i = 0; i < w; i++) {
             float r1 = randomFloat(0,1);
             float r2 = randomFloat(0,1);
@@ -79,7 +77,6 @@ public:
 
     //Retorna true, se houve melhora local e retorna false caso não
     bool atualizarPosicao() {
-        #pragma omp parallel for
         for (int i = 0; i < w; i++) {
             position[i] += velocity[i];
             while (position[i] < xmin){

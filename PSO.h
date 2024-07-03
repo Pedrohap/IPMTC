@@ -5,7 +5,6 @@
 #include "LocalSearch.h"
 #include <vector>
 #include <cmath>
-#include <omp.h>
 
 //Cap de quantidade de particulas
 const int CAP_PARTICULAS = 1000;
@@ -67,10 +66,10 @@ public:
             for (int i = 0; i < qtd_particulas; i++) {
                 if (iter == 0){
                     pso_all_init_fitness.push_back(particles[i].initial_fitness);
+                    //Rodar busca local para 50% das particulas
                 }
 
-                if (particles[i].best_fitness < global_best_fitness) 
-                {
+                if (particles[i].best_fitness < global_best_fitness) {
                     global_best_position = particles[i].best_position;
                     global_best_fitness = particles[i].best_fitness;
 
@@ -90,18 +89,13 @@ public:
                 pso_have_melhora = false;
             }
             // Update each particle
-            //#pragma omp parallel for
-            for (int i = 0; i < qtd_particulas; i++)
-            {
+            for (int i = 0; i < qtd_particulas; i++) {
                 particles[i].atualizarVelocidade(global_best_position);
-                if(particles[i].atualizarPosicao())
-                //#pragma omp critical
-                {
+                if(particles[i].atualizarPosicao()){
                     twoOPT(particles[i]);
                     twoSwap(particles[i]);
                 }
             }
-
             
             /* Pra liberar a busca local só remover esse intervalo de comentario
             //Limpa, Preenche e ordena pelo maior para selecionar 10% para a melhora
