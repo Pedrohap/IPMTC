@@ -64,25 +64,29 @@ public:
         
         for (int iter = 0; iter < qtd_interacos; iter++) {
             // Update global best
+            //#pragma omp parallel for
             for (int i = 0; i < qtd_particulas; i++) {
-                if (iter == 0){
-                    pso_all_init_fitness.push_back(particles[i].initial_fitness);
-                }
+                //#pragma omp critical
+                //{
+                    if (iter == 0){
+                        pso_all_init_fitness.push_back(particles[i].initial_fitness);
+                    }
 
-                if (particles[i].best_fitness < global_best_fitness) 
-                {
-                    global_best_position = particles[i].best_position;
-                    global_best_fitness = particles[i].best_fitness;
+                    if (particles[i].best_fitness < global_best_fitness) 
+                    {
+                        global_best_position = particles[i].best_position;
+                        global_best_fitness = particles[i].best_fitness;
 
-                    //Salva a particula como a melhor global
-                    bestParcticle = particles[i];
-                    pso_have_melhora = true;
-                    pso_int_bg_final = iter;
-                }
+                        //Salva a particula como a melhor global
+                        bestParcticle = particles[i];
+                        pso_have_melhora = true;
+                        pso_int_bg_final = iter;
+                    }
 
-                if(iter == qtd_interacos-1){
-                    pso_all_final_fitness.push_back(particles[i].best_fitness);
-                }
+                    if(iter == qtd_interacos-1){
+                        pso_all_final_fitness.push_back(particles[i].best_fitness);
+                    }
+                //}
             }
 
             if (pso_have_melhora){
@@ -90,15 +94,16 @@ public:
                 pso_have_melhora = false;
             }
             // Update each particle
-            //#pragma omp parallel for
+            #pragma omp parallel for
             for (int i = 0; i < qtd_particulas; i++)
             {
                 particles[i].atualizarVelocidade(global_best_position);
-                if(particles[i].atualizarPosicao())
+                if(particles[i].atualizarPosicao()){
                 //#pragma omp critical
-                {
-                    twoOPT(particles[i]);
-                    twoSwap(particles[i]);
+                //    {
+                        twoOPT(particles[i]);
+                        twoSwap(particles[i]);
+                //    }
                 }
             }
 
@@ -141,9 +146,13 @@ public:
             auto duration_tempo_pso = chrono::duration_cast<chrono::duration<double>>(end_tempo_pso - start_tempo_pso);
 
             pso_qtd_int++;
-            if(duration_tempo_pso.count() > 7200){
+            if(duration_tempo_pso.count() > 7200){  
+                #pragma omp parallel for
                 for (int i = 0; i < qtd_particulas; i++) {
-                    pso_all_final_fitness.push_back(particles[i].best_fitness);
+                    #pragma omp critical
+                    {
+                        pso_all_final_fitness.push_back(particles[i].best_fitness);
+                    }
                 }
                 cout << "Tempo Limite estourado" << endl;
                 break;

@@ -22,9 +22,6 @@ extern int t;
 extern vector <int> tempo_tarefa;
 extern vector < vector <int> > matriz_ferramentas;
 
-//<0>: representa a tarefa,<1>: o tempo e <2>: quantidade de ferramentas
-vector <tuple <int,int,int>> tempo_quantidade_tarefas;
-
 //Valor da solução antes do refinamento
 int val_sol_inicial;
 
@@ -50,6 +47,10 @@ class IPMTC{
 
 private:
 public:
+    KTNS ktns;
+    //<0>: representa a tarefa,<1>: o tempo e <2>: quantidade de ferramentas
+    vector <tuple <int,int,int>> tempo_quantidade_tarefas;
+    
     IPMTC(/* args */){};
     ~IPMTC(){};
 
@@ -95,7 +96,7 @@ public:
 
     //Retorna o tempo da solução de uma unica maquina
     int getTempoUnico(vector <int> solucaoDaMaquina){
-        int qtdTrocas =  KTNS(solucaoDaMaquina);
+        int qtdTrocas =  ktns.doKTNS(solucaoDaMaquina);
         int tempoMaquina;
         for (int i = 0; i < solucaoDaMaquina.size() ; i++){
                 tempoMaquina += tempo_tarefa[solucaoDaMaquina[i]];
@@ -111,7 +112,7 @@ public:
         vector <int> trocaMaquinas(m,0);
 
         for (int i = 0; i < solucao.size(); i++){
-            trocaMaquinas[i] = KTNS(solucao[i]);
+            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
 
             for (int j = 0; j < solucao[i].size() ; j++){
                 tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
@@ -168,7 +169,7 @@ public:
         vector <int> trocaMaquinas(m,0);
 
         for (int i = 0; i < solucao.size(); i++){
-            trocaMaquinas[i] = KTNS(solucao[i]);
+            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
 
             for (int j = 0; j < solucao[i].size() ; j++){
                 tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
@@ -212,7 +213,7 @@ public:
     int getQuantidadTrocasComAdd(vector <int> solucaoDaMaquina, int novaTarefa){
         vector <int> tempVec = solucaoDaMaquina;
         tempVec.push_back(novaTarefa);
-        return KTNS(tempVec);
+        return ktns.doKTNS(tempVec);
     }
 
     int getPosMenorElementoVector(vector <int>& vetor){
@@ -245,7 +246,7 @@ public:
 
         //Gerando uma solução marcada
         for (int i = 0; i < m; i++){
-            solucao_marcada[i] = KTNSMarcandoTrocas(solucao[i]);
+            solucao_marcada[i] = ktns.KTNSMarcandoTrocas(solucao[i]);
         }
 
         //Agora que temos o vetor marcado, procurar a posição com o maior valor
@@ -598,7 +599,7 @@ public:
         vector <int> trocaMaquinas(m,0);
 
         for (int i = 0; i < solucao.size(); i++){
-            trocaMaquinas[i] = KTNS(solucao[i]);
+            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
             for (int j = 0; j < solucao[i].size() ; j++){
                 tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
             }
@@ -638,7 +639,7 @@ public:
     double getQuantidadeTrocas(vector <vector <int>> solucao){
         int qtd_trocas = 0;
         for (int i = 0; i < solucao.size(); i++){
-            qtd_trocas += KTNS(solucao[i]);
+            qtd_trocas += ktns.doKTNS(solucao[i]);
         }
 
         return qtd_trocas;

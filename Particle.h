@@ -79,7 +79,7 @@ public:
 
     //Retorna true, se houve melhora local e retorna false caso não
     bool atualizarPosicao() {
-        #pragma omp parallel for
+        //#pragma omp parallel for
         for (int i = 0; i < w; i++) {
             position[i] += velocity[i];
             while (position[i] < xmin){
