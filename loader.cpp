@@ -23,7 +23,7 @@ const string METODO = "PSO";
 const int EXECUCOES = 10;
 
 //Nome da pasta principal que carregara as intacias
-const string PASTA_PRINCIPAL = "5% Test SmallJobs with some LargerJobs";
+const string PASTA_PRINCIPAL = "5% Test SmallJobs";
 
 //Numero de Tarefas
 int w;
@@ -168,7 +168,7 @@ void processFile(const fs::path& filePath) {
                 fs::create_directory("Particles/"+fullFilePath[1]);
             }
 
-            ofstream particleData("Particles/"+fullFilePath[1]+"/"+fullFilePath[2]+"_" + to_string(exec));
+            ofstream particleData("Particles/"+fullFilePath[1]+"/"+fullFilePath[2]+"_" + to_string(exec) + ".particle");
 
             PSO pso;
             Particle bestSolution = pso.startPSO();
@@ -269,36 +269,21 @@ int main (){
         omega = 0.0;
         c1 = 2.0;
         c2 = 2.0;
-        ofstream resultData("solucoes/resultPSO.csv");
+
+        if (!fs::exists("solucoes/resultPSO.csv")) {
+            if (!fs::exists("solucoes")) {
+                fs::create_directory("solucoes");
+            }
+            ofstream resultData("solucoes/resultPSO.csv");
+            resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_2APT|MEDIA_MELHORA_2SWAP|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
+            resultData.close();
+        } 
 
         melhora_twoapt = false;
         melhora_twoswap = false;
-
-        resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_2APT|MEDIA_MELHORA_2SWAP|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
-
-        resultData.close();
     }
     
  
     readFiles();
-    
-    //A Saida tem que conter as Seguintes informaçoes:
-    //* Valor da solução antes do refinamento
-    //* Valor da solução após o refinamento
-    //* Quantas iterações o refinamento executou
-    //* Tempo de execução da HC, tempo de execução do refinamento, e tempo total.
-    //* Quantidade de trocas total de todas as maquinas
-
-    //Pegar o vetor de tarefas e mete um shuffle (aleatorizar)
-    //Ordernar a tarefa das maquinas mais desocupadas (A tarefa vai pra maquina com menor tempo de excução)
-
-    //TODO
-    //Implementar o PSO (Olhar a planilha);
-    //Particulas 100;
-    //Interações 100; (Atualizar todas as pairticulas = 1 iteração)
-    //Saida deve mostrar em qual iteração rolou a melhor global e quantos melhores existiram
-    //Salvar todos os fitness de todas as pariculas da primeira itenração e dps da ultima
-    //Paralelizar o "for" que calcula a velocidade e a posição, o calcuo do fitness NÃO É PARALELIZADO
-
     return 0;
 }
