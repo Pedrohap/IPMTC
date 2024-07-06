@@ -22,6 +22,9 @@ const string METODO = "PSO";
 //Quantidade de Execuções do PSO
 const int EXECUCOES = 10;
 
+//Cap de particulas
+const int CAP_PARTICULAS = 1000;
+
 //Nome da pasta principal que carregara as intacias
 const string PASTA_PRINCIPAL = "5% Test SmallJobs";
 

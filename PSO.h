@@ -7,7 +7,7 @@
 #include <cmath>
 
 //Cap de quantidade de particulas
-const int CAP_PARTICULAS = 1000;
+extern const int CAP_PARTICULAS;
 
 int pso_int_bg_final;
 int pso_qtd_bg;
