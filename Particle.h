@@ -37,6 +37,7 @@ public:
     double fitness;
     double best_fitness;
     
+    //Construtor de uma Particula aleatoria
     Particle(int tamanho_particula) {
         xmax = m - 0.000001;
         position.resize(tamanho_particula);
@@ -44,6 +45,22 @@ public:
 
         for (int i = 0; i < tamanho_particula; i++) {
             position[i] = randomFloat(xmin,xmax);
+            velocity[i] = 0.0;
+        }
+        initial_position = position;
+        fitness = evaluate(position,false);
+        initial_fitness = fitness;
+        best_position = position;
+        best_fitness = fitness;
+    }
+
+    //Contrutor recebendo uma posição/particula como referencia
+    Particle(vector<float>& particula) {
+        position.resize(particula.size());
+        velocity.resize(particula.size());
+
+        for (int i = 0; i < particula.size(); i++) {
+            position[i] = particula[i];
             velocity[i] = 0.0;
         }
         initial_position = position;

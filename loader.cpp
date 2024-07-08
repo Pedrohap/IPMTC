@@ -20,12 +20,22 @@ namespace fs = filesystem;
     //PSO = Particle Swarm Optimization
 const string METODO = "PSO";
 
+//QUantiade de Threads
+const int QTD_THREADS = 6;
+
+//Cap de particulas
+const int CAP_PARTICULAS = INT_MAX;
+
 //Quantidade de Execuções do PSO
-const int EXECUCOES = 10;
+const int EXECUCOES = 2;
+
+//Se vai usar ou não busca local
+const bool USING_LS = false;
 
 //Nome da pasta principal que carregara as intacias
 //const string PASTA_PRINCIPAL = "5% Test SmallJobs with some LargerJobs";
-const string PASTA_PRINCIPAL = "5% Test SmallJobs";
+//const string PASTA_PRINCIPAL = "5% Test SmallJobs";
+const string PASTA_PRINCIPAL = "BigInstances";
 
 //Numero de Tarefas
 int w;
@@ -170,7 +180,7 @@ void processFile(const fs::path& filePath) {
                 fs::create_directory("Particles/"+fullFilePath[1]);
             }
 
-            ofstream particleData("Particles/"+fullFilePath[1]+"/"+fullFilePath[2]+"_" + to_string(exec));
+            ofstream particleData("Particles/"+fullFilePath[1]+"/"+fullFilePath[2]+"_" + to_string(exec) + ".particle");
 
             PSO pso;
             Particle bestSolution = pso.startPSO();
@@ -266,20 +276,24 @@ void readFiles(){
 
 int main (){
     setlocale(LC_ALL, "pt_BR.UTF-8");
-    omp_set_num_threads(10);
+    omp_set_num_threads(QTD_THREADS);
 
     if(METODO == "PSO"){
         omega = 0.0;
         c1 = 2.0;
         c2 = 2.0;
-        ofstream resultData("solucoes/resultPSO.csv");
+
+        if (!fs::exists("solucoes/resultPSO.csv")) {
+            if (!fs::exists("solucoes")) {
+                fs::create_directory("solucoes");
+            }
+            ofstream resultData("solucoes/resultPSO.csv");
+            resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_2APT|MEDIA_MELHORA_2SWAP|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
+            resultData.close();
+        } 
 
         melhora_twoapt = false;
         melhora_twoswap = false;
-
-        resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_2APT|MEDIA_MELHORA_2SWAP|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
-
-        resultData.close();
     }
     
  
