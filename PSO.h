@@ -3,11 +3,15 @@
 
 #include "Particle.h"
 #include "LocalSearch.h"
+#include "CrossOver.h"
 #include <vector>
 #include <cmath>
+#include <omp.h>
 
 //Cap de quantidade de particulas
 extern const int CAP_PARTICULAS;
+
+extern const bool USING_LS;
 
 int pso_int_bg_final;
 int pso_qtd_bg;
@@ -31,7 +35,7 @@ public:
     vector <float> global_best_position;
 
     //Vector de pair onde tem o fitness de todas as paticulas, one first é a posição da particula e o second o fitness
-    vector <pair <int,float>> all_particles_fitness;
+    //vector <pair <int,float>> all_particles_fitness;
 
     double global_best_fitness = numeric_limits<double>::infinity();
     const int qtd_interacos = 1000;
@@ -66,10 +70,52 @@ public:
             for (int i = 0; i < qtd_particulas; i++) {
                 if (iter == 0){
                     pso_all_init_fitness.push_back(particles[i].initial_fitness);
-                    //Rodar busca local para 50% das particulas
+
+                    if (particles[i].best_fitness < global_best_fitness) {
+                        global_best_position = particles[i].best_position;
+                        global_best_fitness = particles[i].best_fitness;
+                        //Salva a particula como a melhor global
+                        bestParcticle = particles[i];
+                        pso_have_melhora = true;
+                        pso_int_bg_final = iter;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            if (pso_have_melhora){
+                pso_qtd_bg++;
+                pso_have_melhora = false;
+            }
+
+            if(USING_LS){
+                #pragma omp parallel for
+                for (int i = 0; i < qtd_particulas; i++)
+                {
+                    particles[i].atualizarVelocidade(global_best_position);
+                    if(particles[i].atualizarPosicao()){
+                        twoOPT(particles[i]);
+                        twoSwap(particles[i]);
+                    }
                 }
 
+            } else { 
+                #pragma omp parallel for
+                for (int i = 0; i < qtd_particulas; i++)
+                {
+                    particles[i].atualizarVelocidade(global_best_position);
+                    particles[i].atualizarPosicao();
+                }
+            }
+            
+            //crossOver(particles);
+
+            //Atualiza o Melhor Global
+            for (int i = 0; i < qtd_particulas; i++) {
+                //Adicionar a quantidade de melhoras na melhor global baseado na busca local
                 if (particles[i].best_fitness < global_best_fitness) {
+                    ls_qtd_melhora_global++;
                     global_best_position = particles[i].best_position;
                     global_best_fitness = particles[i].best_fitness;
 
@@ -78,22 +124,8 @@ public:
                     pso_have_melhora = true;
                     pso_int_bg_final = iter;
                 }
-
                 if(iter == qtd_interacos-1){
                     pso_all_final_fitness.push_back(particles[i].best_fitness);
-                }
-            }
-
-            if (pso_have_melhora){
-                pso_qtd_bg++;
-                pso_have_melhora = false;
-            }
-            // Update each particle
-            for (int i = 0; i < qtd_particulas; i++) {
-                particles[i].atualizarVelocidade(global_best_position);
-                if(particles[i].atualizarPosicao()){
-                    twoOPT(particles[i]);
-                    twoSwap(particles[i]);
                 }
             }
             
@@ -135,9 +167,13 @@ public:
             auto duration_tempo_pso = chrono::duration_cast<chrono::duration<double>>(end_tempo_pso - start_tempo_pso);
 
             pso_qtd_int++;
-            if(duration_tempo_pso.count() > 7200){
+            if(duration_tempo_pso.count() > 7200){  
+                #pragma omp parallel for
                 for (int i = 0; i < qtd_particulas; i++) {
-                    pso_all_final_fitness.push_back(particles[i].best_fitness);
+                    #pragma omp critical
+                    {
+                        pso_all_final_fitness.push_back(particles[i].best_fitness);
+                    }
                 }
                 cout << "Tempo Limite estourado" << endl;
                 break;

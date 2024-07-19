@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
+#include <omp.h>
 
 #include "Utilities.h"
 #include "Decoder.h"
@@ -36,6 +37,7 @@ public:
     double fitness;
     double best_fitness;
     
+    //Construtor de uma Particula aleatoria
     Particle(int tamanho_particula) {
         xmax = m - 0.000001;
         position.resize(tamanho_particula);
@@ -43,7 +45,23 @@ public:
 
         for (int i = 0; i < tamanho_particula; i++) {
             position[i] = randomFloat(xmin,xmax);
-            velocity[i] = 0.0;
+            velocity[i] = randomFloat(xmin,xmax);
+        }
+        initial_position = position;
+        fitness = evaluate(position,false);
+        initial_fitness = fitness;
+        best_position = position;
+        best_fitness = fitness;
+    }
+
+    //Contrutor recebendo uma posição/particula como referencia
+    Particle(vector<float>& particula) {
+        position.resize(particula.size());
+        velocity.resize(particula.size());
+
+        for (int i = 0; i < particula.size(); i++) {
+            position[i] = particula[i];
+            velocity[i] = randomFloat(xmin,xmax);
         }
         initial_position = position;
         fitness = evaluate(position,false);
@@ -63,6 +81,7 @@ public:
     }
 
     void atualizarVelocidade(vector<float>& global_best_position) {
+        #pragma omp parallel for
         for (int i = 0; i < w; i++) {
             float r1 = randomFloat(0,1);
             float r2 = randomFloat(0,1);
@@ -77,6 +96,7 @@ public:
 
     //Retorna true, se houve melhora local e retorna false caso não
     bool atualizarPosicao() {
+        //#pragma omp parallel for
         for (int i = 0; i < w; i++) {
             position[i] += velocity[i];
             while (position[i] < xmin){

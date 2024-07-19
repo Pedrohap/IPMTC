@@ -12,12 +12,12 @@ O projeto é desenvolvido em C++ e visa oferecer uma solução eficiente para o 
 
 ## Como Compilar
 
-Para compilar no Windows com MinGW use: `g++ -O3 -march=native -o loader loader.cpp -static-libgcc -static-libstdc++`
+Para compilar no Windows com MinGW use: `g++ -fopenmp -O3 -march=native -o loader loader.cpp -static-libgcc -static-libstdc++`
 
-Para compilar no Linux use: `g++ -O3 -march=native -o loader loader.cpp -static-libgcc -static-libstdc++ -std=c++17`
+Para compilar no Linux use: `g++ -fopenmp -O3 -march=native -o loader loader.cpp -static-libgcc -static-libstdc++ -std=c++17`
 
-Para compilar o target-runner no Windows com MinGW use: `g++ -o target-runner target-runner.cpp -static-libgcc -static-libstdc++`
+Para compilar o target-runner no Windows com MinGW use: `g++ -fopenmp -O3 -march=native -o target-runner target-runner.cpp -static-libgcc -static-libstdc++`
 
-Para compilar o target-runner no Linux use: `g++ -o target-runner target-runner.cpp -static-libgcc -static-libstdc++ -std=c++17`
+Para compilar o target-runner no Linux use: `g++ -fopenmp -O3 -march=native -o target-runner target-runner.cpp -static-libgcc -static-libstdc++ -std=c++17`
 
 Execute o arquivo `loader` e o programma será executado.

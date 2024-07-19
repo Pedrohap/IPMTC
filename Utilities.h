@@ -8,6 +8,7 @@
 
 using namespace std;
 
+//O intervaldo do max é aberto (o valor max não sera sorteado)
 int randomInt(int min, int max){
     max--;
     random_device rd;
@@ -133,6 +134,11 @@ bool sortBySecondFloat(const pair<int, float> &a, const pair<int, float> &b) {
 //Função EXCLUSIVA para ordernar em forma decrecente um pair de Int, Float baseado em seu segundo valor
 bool sortBySecondFloatDecrecente(const pair<int, float> &a, const pair<int, float> &b) {
     return a.second > b.second;
+}
+
+//Função EXCLUSIVA para ordernar em forma crecente um pair de Int, Float baseado em seu segundo valor
+bool sortBySecondFloatCrecente(const pair<int, float> &a, const pair<int, float> &b) {
+    return a.second < b.second;
 }
 
 //Função EXCLSUIVA de comparação para o sort dos tuple
