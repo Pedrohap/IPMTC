@@ -121,6 +121,20 @@ public:
         return false;
     }
 
+    //Verifica se esta particula esta utilizando todas as maquinas disponiveis
+    bool isInAllMachines() {
+        vector <int> used_machines(m,0);
+        for(int i = 0; i < position.size(); i++){
+            used_machines[getFirstDigit(position[i])]++;
+        }
+        for (int i = 0; i < m ;i++){
+            if(used_machines[i] == 0){
+                return false;
+            }
+        }
+        return true;
+    }
+
     string toStringCsv(vector<float> particle_position){
         string saida = "";
         for (int i = 0 ; i < particle_position.size(); i++){

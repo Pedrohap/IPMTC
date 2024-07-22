@@ -12,7 +12,7 @@ using namespace std;
 
 //A decodificação :
     //O ordenamento dos genes indica o escalonamento das tarefas nas máquinas. A alocação das
-    //máquinas é feita de acordo com o último algarismo de cada gene, para isso, divide-se 
+    //máquinas é feita de acordo com o PRIMEIRO algarismo de cada gene, para isso, divide-se 
     //este algarismo pela quantidade de máquinas disponíveis na instância, O
     //resto desta divisão indicará a qual máquina esta tarefa será alocada.
 
