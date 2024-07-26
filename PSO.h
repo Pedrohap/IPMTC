@@ -19,12 +19,12 @@ int pso_qtd_int;
 
 extern int w;
 
-extern vector <float> pso_all_init_fitness;
+extern vector <double> pso_all_init_fitness;
 
-extern vector <float> pso_all_final_fitness;
+extern vector <double> pso_all_final_fitness;
 
-extern float media_melhora_twoapt;
-extern float media_melhora_twoswap;
+extern double media_melhora_twoapt;
+extern double media_melhora_twoswap;
 extern int ls_qtd_melhora_global;
 
 using namespace std;
@@ -32,7 +32,7 @@ using namespace std;
 class PSO{
 public:
     vector <Particle> particles;
-    vector <float> global_best_position;
+    vector <double> global_best_position;
 
     //Vector de pair onde tem o fitness de todas as paticulas, one first é a posição da particula e o second o fitness
     //vector <pair <int,float>> all_particles_fitness;
@@ -52,6 +52,15 @@ public:
             particles.push_back(Particle(w));
             while (!particles[i].isInAllMachines()) {
                 particles[i] = Particle(w);
+            }
+        }
+        for (int i = 0; i < qtd_particulas ; i++){
+            if (!particles[i].isInAllMachines()) {
+                cout << "PARTICULA ESCAPOU!" << endl;
+                for (int j = 0 ; j < particles[i].best_position.size(); j++){
+                    cout << particles[i].best_position[j] << " " << endl;
+                }
+                cout << endl;
             }
         }
         Particle bestParcticle(w);
@@ -109,6 +118,14 @@ public:
                 {
                     particles[i].atualizarVelocidade(global_best_position);
                     particles[i].atualizarPosicao();
+                    bool debugs = false;
+                    vector <vector <int> > tempTesteSol = decode(particles[i].best_position,debugs);
+                    vector <double> tempSolRecode = recode(tempTesteSol,debugs);
+                    vector <vector <int> > redecodedSol =decode(tempSolRecode,debugs);
+                    if(!comparaMatrizes(tempTesteSol,redecodedSol)){
+                        cout << "ERRO FATAL NA RECODIFICAÇÃO" << endl;
+                        exit(0);
+                    }
                 }
             }
             

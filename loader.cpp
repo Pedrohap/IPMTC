@@ -35,8 +35,8 @@ const bool USING_LS = false;
 
 //Nome da pasta principal que carregara as intacias
 //const string PASTA_PRINCIPAL = "5% Test SmallJobs with some LargerJobs";
-//const string PASTA_PRINCIPAL = "5% Test SmallJobs";
-const string PASTA_PRINCIPAL = "instances";
+const string PASTA_PRINCIPAL = "5% Test SmallJobs";
+//const string PASTA_PRINCIPAL = "instances";
 
 //Numero de Tarefas
 int w;
@@ -90,10 +90,10 @@ extern int pso_int_bg_final;
 extern int pso_qtd_bg;
 
 //Todos os fitness das particulas Inicias
-vector <float> pso_all_init_fitness;
+vector <double> pso_all_init_fitness;
 
 //Todos os fitness das particulas Finais
-vector <float> pso_all_final_fitness;
+vector <double> pso_all_final_fitness;
 
 //Quantidade de interações que o PSO executou
 extern int pso_qtd_int;
@@ -105,10 +105,10 @@ bool melhora_twoapt;
 bool melhora_twoswap;
 
 //Media de melhora 2APT
-float media_melhora_twoapt;
+double media_melhora_twoapt;
 
 //Media de melhora 2Swap
-float media_melhora_twoswap;
+double media_melhora_twoswap;
 
 //Quantidade de melhoras causada pela busca local no MELHOR Global
 int ls_qtd_melhora_global;
@@ -218,7 +218,7 @@ void processFile(const fs::path& filePath) {
             particleData << "Particula Inicial do melhor global:\n" << bestSolution.toStringCsv(bestSolution.initial_position);
             particleData << "Particula Final do melhor global:\n" << bestSolution.toStringCsv(bestSolution.best_position);
 
-            vector <float> temp_postion_particle = bestSolution.best_position;
+            vector <double> temp_postion_particle = bestSolution.best_position;
             vector <vector <int>> temp_solution = bestSolution.getSolution(temp_postion_particle);
 
             particleData << debugStringMatriz("A melhor solução desse PSO é:",temp_solution);

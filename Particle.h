@@ -10,8 +10,7 @@
 #include "Decoder.h"
 
 
-const double xmin = 0.0;
-double xmax;
+
 //const double c1 = 2.0;
 //const double c2 = 2.0;
 
@@ -30,22 +29,25 @@ using namespace std;
 class Particle{
 public:
     double initial_fitness;
-    vector<float> initial_position;
-    vector<float> position;
-    vector<float> velocity;
-    vector<float> best_position;
+    vector<double> initial_position;
+    vector<double> position;
+    vector<double> velocity;
+    vector<double> best_position;
     double fitness;
     double best_fitness;
+    double xmin;
+    double xmax;
     
     //Construtor de uma Particula aleatoria
     Particle(int tamanho_particula) {
+        xmin = 0.0;
         xmax = m - 0.000001;
         position.resize(tamanho_particula);
         velocity.resize(tamanho_particula);
 
         for (int i = 0; i < tamanho_particula; i++) {
-            position[i] = randomFloat(xmin,xmax);
-            velocity[i] = randomFloat(xmin,xmax);
+            position[i] = randomDouble(xmin,xmax);
+            velocity[i] = randomDouble(xmin,xmax);
         }
         initial_position = position;
         fitness = evaluate(position,false);
@@ -55,13 +57,13 @@ public:
     }
 
     //Contrutor recebendo uma posição/particula como referencia
-    Particle(vector<float>& particula) {
+    Particle(vector<double>& particula) {
         position.resize(particula.size());
         velocity.resize(particula.size());
 
         for (int i = 0; i < particula.size(); i++) {
             position[i] = particula[i];
-            velocity[i] = randomFloat(xmin,xmax);
+            velocity[i] = randomDouble(xmin,xmax);
         }
         initial_position = position;
         fitness = evaluate(position,false);
@@ -80,11 +82,11 @@ public:
         }
     }
 
-    void atualizarVelocidade(vector<float>& global_best_position) {
+    void atualizarVelocidade(vector<double>& global_best_position) {
         #pragma omp parallel for
         for (int i = 0; i < w; i++) {
-            float r1 = randomFloat(0,1);
-            float r2 = randomFloat(0,1);
+            double r1 = randomDouble(0,1);
+            double r2 = randomDouble(0,1);
             velocity[i] = (omega * velocity[i]) + (c1 * r1) * (best_position[i] - position[i]) + (c2 * r2) * (global_best_position[i] - position[i]);
             if (false){
                 cout << "Velocidade [" << i << "] = (" << omega << " * " << velocity[i] << ") + (" << c1 << " * " << r1 << ") * (" << best_position[i] << " - " << position[i] << ") + (" << c2 << " * " << r2 << ") * (" << global_best_position[i] << " - " << position[i] << ") \n";
@@ -135,7 +137,7 @@ public:
         return true;
     }
 
-    string toStringCsv(vector<float> particle_position){
+    string toStringCsv(vector<double> particle_position){
         string saida = "";
         for (int i = 0 ; i < particle_position.size(); i++){
             saida += to_string(particle_position[i])  + "|";
@@ -145,7 +147,7 @@ public:
         return saida;
     }
 
-    vector < vector <int> > getSolution(vector<float> particle_position){
+    vector < vector <int> > getSolution(vector<double> particle_position){
         bool debugs = false;
         return decode(particle_position, debugs);
     }

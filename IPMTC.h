@@ -623,6 +623,52 @@ public:
         return makespan;
     }
 
+    //Retorna uma tuple onde:
+    //get <0>: Maquina critica
+    //get <1>: Maquinas menos critica
+    //get <2>: Makespan
+    tuple<int,int,double> funcaoAvaliativaDetalhada(vector <vector <int>> solucao){
+        vector <double> tempoMaquinas(m,0);
+        vector <int> trocaMaquinas(m,0);
+
+        //Pos 0: Maquina critica
+        //Pos 1: Maquinas menos critica
+        //Pos 2: Makespan
+        tuple<int,int,double> retorno;
+
+        for (int i = 0; i < solucao.size(); i++){
+            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
+            for (int j = 0; j < solucao[i].size() ; j++){
+                tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
+            }
+            tempoMaquinas[i] += (trocaMaquinas[i] * p);
+        }
+
+        double makespan =  tempoMaquinas[0];
+        get<0>(retorno) = 0;
+        get<1>(retorno) = 0;
+        
+        for(int i = 1; i < m ; i++){
+            if (makespan < tempoMaquinas[i]){
+                makespan = tempoMaquinas[i];
+               get<0>(retorno) = i;
+            }
+            if(tempoMaquinas[i] < tempoMaquinas[get<1>(retorno)]){
+                get<1>(retorno) = i;
+            }
+        }
+
+        get<3>(retorno) = makespan;
+
+        //Para garantir que a solução é valida, deve-se verificar se todas as tarefas estão alocadas nas máquinas
+        if (!isValida(solucao)){
+            cout << "ERRO CRÍTICO, SOLUÇÃO NÃO CONTEM A MESMA QUANTIDADE DE TAREFAS";
+            exit(EXIT_FAILURE);
+        }
+
+        return retorno;
+    }
+
     bool isValida(vector <vector <int>>& solucao){
         int cont = 0;
         for (int i = 0; i < solucao.size();i++){
@@ -641,6 +687,13 @@ public:
         for (int i = 0; i < solucao.size(); i++){
             qtd_trocas += ktns.doKTNS(solucao[i]);
         }
+
+        return qtd_trocas;
+    }
+
+    //Retorna a quantidade de trocas de uma solução
+    double getQuantidadeTrocasMaquina(vector <int>& solucao){
+        int qtd_trocas = ktns.doKTNS(solucao);
 
         return qtd_trocas;
     }

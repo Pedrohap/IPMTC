@@ -12,7 +12,7 @@ using namespace std;
 //O resto gerar mutante;
 void crossOver(vector <Particle>& particles){
     //Vector de pair onde tem o fitness de todas as paticulas, onde first é a posição da particula e o second o fitness
-    vector <pair <int,float>> all_particles_fitness;
+    vector <pair <int,double>> all_particles_fitness;
     int qtd_particulas = particles.size();
 
     //Limpa, Preenche e ordena pelo maior para selecionar 15% para a remoção
@@ -22,10 +22,10 @@ void crossOver(vector <Particle>& particles){
     int porcentagem5 = qtd_particulas * 0.05;
     
     for (int i = 0; i < qtd_particulas; i++) {
-        all_particles_fitness.push_back(pair <int,float> (i , particles[i].fitness));
+        all_particles_fitness.push_back(pair <int,double> (i , particles[i].fitness));
     }
 
-    sort(all_particles_fitness.begin(), all_particles_fitness.end(),sortBySecondFloatCrecente);
+    sort(all_particles_fitness.begin(), all_particles_fitness.end(),sortBySecondDoubleCrecente);
     
     //Selecionar 15% das piores particulas
     //For baseado na quantidade da porcentagem de 10%
@@ -42,7 +42,7 @@ void crossOver(vector <Particle>& particles){
             Particle pai = particles[all_particles_fitness[paiPos].first];
             Particle mae = particles[all_particles_fitness[maePos].first];
 
-            vector<float> filhoPos;
+            vector<double> filhoPos;
             filhoPos.clear();
 
             for (int j = 0; j < particles[all_particles_fitness[i].first].best_position.size(); j++){

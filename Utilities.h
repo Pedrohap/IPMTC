@@ -21,13 +21,21 @@ int randomInt(int min, int max){
     return random_number;
 }
 
-float randomFloat(float min, float max) {
+double randomDouble(double min, double max) {
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_real_distribution<double> distribution(min, max);
+    double random_number = distribution(generator);
+    return random_number;
+}
+
+/*float randomFloat(float min, float max) {
     random_device rd;
     mt19937 generator(rd());
     uniform_real_distribution<float> distribution(min, max);
     float random_number = distribution(generator);
     return random_number;
-}
+}*/
 
 //Retorna o inteiro do ultimo numero de um float
 int getLastDigit(float num) {
@@ -131,6 +139,16 @@ bool sortBySecondFloat(const pair<int, float> &a, const pair<int, float> &b) {
     return a.second < b.second;
 }
 
+//Função EXCLUSIVA para ordernar em forma crecente um pair de Int, Double baseado em seu segundo valor
+bool sortBySecondDouble(const pair<int, double> &a, const pair<int, double> &b) {
+    return a.second < b.second;
+}
+
+//Função EXCLUSIVA para ordernar em forma crecente um pair de Int, Double baseado em seu segundo valor
+bool sortBySecondDoubleCrecente(const pair<int, double> &a, const pair<int, double> &b) {
+    return a.second < b.second;
+}
+
 //Função EXCLUSIVA para ordernar em forma decrecente um pair de Int, Float baseado em seu segundo valor
 bool sortBySecondFloatDecrecente(const pair<int, float> &a, const pair<int, float> &b) {
     return a.second > b.second;
@@ -189,6 +207,61 @@ void inverterIntervalo(vector<T>& vetor, int inicio, int fim) {
         inicio++;
         fim--;
     }
+}
+
+//Compara se duas matrizes de int são iguais
+bool comparaMatrizes( vector<vector<int>>& matriz1,  vector<vector<int>>& matriz2){
+
+    for (int i = 0; i < matriz1.size(); i++) {
+        if (matriz1.size() != matriz2.size() || matriz1[i].size() != matriz2[i].size()) {
+            debugPrintMatriz("Solução Original:",matriz1);
+            debugPrintMatriz("Solução Recodificada:",matriz2);
+            cout << "TAMANHO INCOPATIVEL" << endl;
+        return false;
+        }
+        for (int j = 0; j < matriz1[i].size(); j++) {
+            if (matriz1[i][j] != matriz2[i][j]) {
+                debugPrintMatriz("Solução Original:",matriz1);
+                debugPrintMatriz("Solução Recodificada:",matriz2);
+                cout << "ELEMENTOS INCOPATIVEL:" <<matriz1[i][j] <<" != " << matriz2[i][j] << endl;
+                cout << "NA POS: i = " << i << " e j = " << j << endl;
+                cout << "O LIMITE DA MATRIZ É: " << matriz1[i].size() << endl;
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+//Verifica se um int está num vector de int
+bool isInVectorInt(const vector<int>& vetor, int elemento) {
+    for (int i = 0; i < vetor.size(); i++) {
+        if (vetor[i] == elemento) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//Verifica se um float está num vector de float
+bool isInVectorFloat(const vector<float>& vetor, float elemento) {
+    for (int i = 0; i < vetor.size(); i++) {
+        if (vetor[i] == elemento) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//Verifica se um double está num vector de double
+bool isInVectorDouble(const vector<double>& vetor, double elemento) {
+    for (int i = 0; i < vetor.size(); i++) {
+        if (vetor[i] == elemento) {
+            return true;
+        }
+    }
+    return false;
 }
 
 #endif
