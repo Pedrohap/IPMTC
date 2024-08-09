@@ -19,6 +19,12 @@ extern double media_melhora_twoapt;
 //Media de melhora 2Swap
 extern double media_melhora_twoswap;
 
+//Media de melhora Insertion
+extern double media_melhora_insertion;
+
+//Media de melhora Exchange
+extern double media_melhora_exchange;
+
 using namespace std;
 
 //Fazer o 2 APT, que pega uma particula (vetor de float), seleciona um 
@@ -92,7 +98,7 @@ void twoSwap (Particle &particula){
     }
 }
 
-void insertion(Particle &particula){
+void insertion(Particle particula){
     bool debug = false;
     vector < vector <int> > decodedSolution = decode(particula.best_position,debug);
 
@@ -105,6 +111,9 @@ void insertion(Particle &particula){
     double makespan;
     tie (maquina_critica,maquina_folgada,makespan) = solutionResults;
 
+    //cout << maquina_critica<<" " << maquina_folgada <<" "<< makespan <<" " << ipmtc.getTempoUnico(decodedSolution[maquina_folgada]) <<" " << ipmtc.getTempoUnico(decodedSolution[maquina_critica]) << endl;
+    //ipmtc.printSolucaoDetalhada(decodedSolution);
+    
     //Pegar 1 tarefa aleatoria do maquina critica:
 
     vector <int> randomTarefas = decodedSolution[maquina_critica];
@@ -114,6 +123,7 @@ void insertion(Particle &particula){
 
     vector < vector <int> > newSolution = decodedSolution;
     for (int i = 0; i < randomTarefas.size(); i++){
+        newSolution = decodedSolution;
         //NÃO TENTE ENVIAR UMA TAREFA QUE O TEMPO PROCESSAMENTO DELA CAUSARIA UM 
         //MAKESPAN MAIOR MESMO NO MELHOR CENARIO
         if( (tempo_tarefa[randomTarefas[i]] + ipmtc.getTempoUnico(decodedSolution[maquina_folgada])) < makespan){
@@ -140,6 +150,7 @@ void insertion(Particle &particula){
             
             //Se houve melhora recomeça o loop com a nova solução
             if(ipmtc.funcaoAvaliativa(newSolution) < makespan){
+                media_melhora_insertion += (particula.best_fitness - ipmtc.funcaoAvaliativa(newSolution));
                 i = -1;
                 decodedSolution = newSolution;
                 insertionMelhorou = true;
@@ -160,7 +171,7 @@ void insertion(Particle &particula){
     }
 }
 
-void exchange(Particle &particula){
+void exchange(Particle particula){
     bool debug = false;
     vector < vector <int> > decodedSolution = decode(particula.best_position,debug);
 
@@ -186,23 +197,46 @@ void exchange(Particle &particula){
     for (int i = 0; i < randomTarefas.size(); i++){
         //pegar essa tarefa da maquina critica e trocar com todas da maquina
         for (int j = 0; j < decodedSolution[maquina_folgada].size(); j++){
+            newSolution = decodedSolution;
+
+            if(debug){
+                cout << "SOLUÇÃO ANTIGA:" << endl;
+                ipmtc.printSolucaoDetalhada(decodedSolution);
+                cout << "Saiu da critica a " << randomTarefas[i] << " e saiu da folgada a " << newSolution[maquina_folgada][j] << endl;
+            }
             //Realiza a troca
             int pos_tarefa_maquina_critica = getPosElementoVector(decodedSolution[maquina_critica],randomTarefas[i]);
             newSolution[maquina_critica][pos_tarefa_maquina_critica] = newSolution[maquina_folgada][j];
             newSolution[maquina_folgada][j] = randomTarefas[i];
 
+            if(debug){
+                cout << "GERANDO A NOVA:" << endl;
+                ipmtc.printSolucaoDetalhada(newSolution);
+            }
+
             //Se houve melhora recomeça o loop com a nova solução
-             if(ipmtc.funcaoAvaliativa(newSolution) < makespan){
+            if(ipmtc.funcaoAvaliativa(newSolution) < makespan){
+                media_melhora_exchange += (particula.best_fitness - ipmtc.funcaoAvaliativa(newSolution));
                 i = -1;
-                j = -1;
+
+                if(debug){
+                    cout << "SOLUÇÃO ANTIGA:" << endl;
+                    ipmtc.printSolucaoDetalhada(decodedSolution);
+                    
+                    cout << "SOLUÇÃO NOVA:" << endl;
+                    ipmtc.printSolucaoDetalhada(newSolution);
+                }
+
                 decodedSolution = newSolution;
                 exchangeMelhorou = true;
-
                 solutionResults = ipmtc.funcaoAvaliativaDetalhada(decodedSolution);
                 tie (maquina_critica,maquina_folgada,makespan) = solutionResults;
                 randomTarefas = decodedSolution[maquina_critica];
-                shuffleVec(randomTarefas);     
+                shuffleVec(randomTarefas);
+                break;
+
              }
+
         }
     }
 

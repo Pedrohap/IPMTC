@@ -97,7 +97,7 @@ public:
     //Retorna o tempo da solução de uma unica maquina
     int getTempoUnico(vector <int> solucaoDaMaquina){
         int qtdTrocas =  ktns.doKTNS(solucaoDaMaquina);
-        int tempoMaquina;
+        int tempoMaquina = 0;
         for (int i = 0; i < solucaoDaMaquina.size() ; i++){
                 tempoMaquina += tempo_tarefa[solucaoDaMaquina[i]];
         }
@@ -658,7 +658,7 @@ public:
             }
         }
 
-        get<3>(retorno) = makespan;
+        get<2>(retorno) = makespan;
 
         //Para garantir que a solução é valida, deve-se verificar se todas as tarefas estão alocadas nas máquinas
         if (!isValida(solucao)){
@@ -668,6 +668,41 @@ public:
 
         return retorno;
     }
+
+    void printSolucaoDetalhada(vector <vector <int>> solucao){
+        string retorno;
+        vector <double> tempoMaquinas(m,0);
+        vector <int> trocaMaquinas(m,0);
+
+        debugPrintMatriz("A solução é:",solucao);
+
+        for (int i = 0; i < solucao.size(); i++){
+            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
+            for (int j = 0; j < solucao[i].size() ; j++){
+                tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
+            }
+            tempoMaquinas[i] += (trocaMaquinas[i] * p);
+            cout << "Tempo da maquina " << i << ": " << tempoMaquinas[i] << endl;
+            cout << "Trocas da maquina  "<< i << ": " << trocaMaquinas[i] << endl;
+        }
+
+        double makespan =  tempoMaquinas[0];
+        
+        for(int i = 1; i < m ; i++){
+            if (makespan < tempoMaquinas[i]){
+                makespan = tempoMaquinas[i];
+            }    
+        }
+
+        //Para garantir que a solução é valida, deve-se verificar se todas as tarefas estão alocadas nas máquinas
+        if (!isValida(solucao)){
+            cout << "ERRO CRÍTICO, SOLUÇÃO NÃO CONTEM A MESMA QUANTIDADE DE TAREFAS";
+            exit(EXIT_FAILURE);
+        }
+
+        cout<< "Tendo um makespan de: " << makespan << endl;
+    }
+
 
     bool isValida(vector <vector <int>>& solucao){
         int cont = 0;

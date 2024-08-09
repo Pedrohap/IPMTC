@@ -25,6 +25,8 @@ extern vector <double> pso_all_final_fitness;
 
 extern double media_melhora_twoapt;
 extern double media_melhora_twoswap;
+extern double media_melhora_insertion;
+extern double media_melhora_exchange;
 extern int ls_qtd_melhora_global;
 
 using namespace std;
@@ -39,7 +41,7 @@ public:
 
     double global_best_fitness = numeric_limits<double>::infinity();
     const int qtd_interacos = 1000;
-    int qtd_particulas = 10*w;
+    int qtd_particulas = 15*w;
     
     // PSO iterações
     Particle startPSO(){
@@ -70,6 +72,7 @@ public:
         pso_all_init_fitness.clear();
         pso_all_final_fitness.clear();
         bool pso_have_melhora = false;
+        int ls_counter = 0;
 
         media_melhora_twoapt = 0;
         media_melhora_twoswap = 0;
@@ -100,32 +103,33 @@ public:
                 pso_qtd_bg++;
                 pso_have_melhora = false;
             }
-
+            
             if(USING_LS){
                 #pragma omp parallel for
                 for (int i = 0; i < qtd_particulas; i++)
                 {
                     particles[i].atualizarVelocidade(global_best_position);
                     if(particles[i].atualizarPosicao()){
-                        twoOPT(particles[i]);
-                        twoSwap(particles[i]);
+                        //#pragma omp atomic
+                        //++ls_counter;
+                        //insertion(particles[i]);
+                        //exchange(particles[i]);
                     }
                 }
-
             } else { 
                 #pragma omp parallel for
                 for (int i = 0; i < qtd_particulas; i++)
                 {
                     particles[i].atualizarVelocidade(global_best_position);
                     particles[i].atualizarPosicao();
-                    bool debugs = false;
+                    /*bool debugs = false;
                     vector <vector <int> > tempTesteSol = decode(particles[i].best_position,debugs);
                     vector <double> tempSolRecode = recode(tempTesteSol,debugs);
                     vector <vector <int> > redecodedSol =decode(tempSolRecode,debugs);
                     if(!comparaMatrizes(tempTesteSol,redecodedSol)){
                         cout << "ERRO FATAL NA RECODIFICAÇÃO" << endl;
                         exit(0);
-                    }
+                    }*/
                 }
             }
             
@@ -135,6 +139,11 @@ public:
             for (int i = 0; i < qtd_particulas; i++) {
                 //Adicionar a quantidade de melhoras na melhor global baseado na busca local
                 if (particles[i].best_fitness < global_best_fitness) {
+                    if(USING_LS){
+                        //++ls_counter;
+                        //insertion(particles[i]);
+                        //exchange(particles[i]);
+                    }
                     ls_qtd_melhora_global++;
                     global_best_position = particles[i].best_position;
                     global_best_fitness = particles[i].best_fitness;
@@ -200,8 +209,18 @@ public:
             }
         }
 
-        media_melhora_twoapt = media_melhora_twoapt/((qtd_particulas*0.1)*pso_qtd_int);
-        media_melhora_twoswap = media_melhora_twoswap/((qtd_particulas*0.1)*pso_qtd_int);
+        if(USING_LS){
+            media_melhora_insertion = 0;
+            media_melhora_exchange = 0;
+            ++ls_counter;
+            insertion(bestParcticle);
+            exchange(bestParcticle);
+        }
+
+        //media_melhora_twoapt = media_melhora_twoapt/((qtd_particulas*0.1)*pso_qtd_int);
+        //media_melhora_twoswap = media_melhora_twoswap/((qtd_particulas*0.1)*pso_qtd_int);
+        //media_melhora_insertion = media_melhora_insertion/ls_counter;
+        //media_melhora_exchange = media_melhora_exchange/ls_counter;
 
         return bestParcticle;
     }

@@ -37,11 +37,13 @@ public:
     double best_fitness;
     double xmin;
     double xmax;
+    int cont_stagnado;
     
     //Construtor de uma Particula aleatoria
     Particle(int tamanho_particula) {
         xmin = 0.0;
         xmax = m - 0.000001;
+        cont_stagnado = 0;
         position.resize(tamanho_particula);
         velocity.resize(tamanho_particula);
 
@@ -60,6 +62,7 @@ public:
     Particle(vector<double>& particula) {
         position.resize(particula.size());
         velocity.resize(particula.size());
+        cont_stagnado = 0;
 
         for (int i = 0; i < particula.size(); i++) {
             position[i] = particula[i];
@@ -120,6 +123,12 @@ public:
 
             return true;
         }
+        cont_stagnado++;
+        if (cont_stagnado >= 50){
+            //cout << "Particula pertubada" << endl;
+            //Aplica Pertubação nessa particula
+            pertubaParicula();
+        }
         return false;
     }
 
@@ -150,6 +159,15 @@ public:
     vector < vector <int> > getSolution(vector<double> particle_position){
         bool debugs = false;
         return decode(particle_position, debugs);
+    }
+
+    void pertubaParicula(){
+        int percent_size = ceil(w * 0.1);
+        for (int i = 0; i < percent_size; i++){
+            int random_pos = randomInt(0,w);
+            position[random_pos] = randomDouble(xmin,xmax);
+        }
+        cont_stagnado = 0;
     }
 };
 
