@@ -247,4 +247,107 @@ void exchange(Particle particula){
         particula = new_particula;
     }
 }
+
+void twoOPTMachine (Particle &particula, bool debugs = true){
+    bool debug = false;
+    vector < vector <int> > decodedSolution = decode(particula.best_position,debug);
+
+    IPMTC ipmtc;
+
+    tuple <int,int,double> solutionResults = ipmtc.funcaoAvaliativaDetalhada(decodedSolution);
+
+    int maquina_critica;
+    int maquina_folgada;
+    double makespan;
+    tie (maquina_critica,maquina_folgada,makespan) = solutionResults;
+
+    //Pegar o tamanho da particula
+    int tamanho_particula = decodedSolution[maquina_critica].size();
+    
+    //Cria um vetor com todos os intervalos
+    vector <pair <int,int>> posicoes;
+    for (int i = 0; i < tamanho_particula ; i++){
+        for (int j = (i + 1) ; j < tamanho_particula; j++){
+            posicoes.push_back(pair <int,int> (i,j));
+        }
+    }
+
+    //Mistura esse vetor e seleciona 100% deles
+    shuffleVec(posicoes);
+    int porcentagem = posicoes.size() * 1;
+    
+    //Realiza as interações, se alguma houver melhora substituia a original e vida que segue
+    vector <int> new_makespan_machine = decodedSolution[maquina_critica];
+    for (int i = 0; i < porcentagem; i++){
+        if (debugs){
+            debugPrintVector("Vetor antes de realizar a troca de intevalo:", new_makespan_machine);
+            cout << "O intervalo e: " << posicoes[i].first << "," << posicoes[i].second << endl;
+        }
+        inverterIntervalo(new_makespan_machine , posicoes[i].first, posicoes[i].second);
+        debugPrintVector("Vetor apos realizar a troca de intevalo:", new_makespan_machine);
+
+        int temp_fitness = ipmtc.getTempoUnico(new_makespan_machine);
+        if (temp_fitness < particula.fitness){
+            if (particula.best_fitness > temp_fitness){
+                media_melhora_twoapt += (particula.best_fitness - temp_fitness);
+                melhora_twoapt = true;
+            }
+            decodedSolution[maquina_critica] = new_makespan_machine;
+            vector <double> new_position = recode(decodedSolution, debug);
+            Particle new_particula = Particle(new_position);
+            particula = new_particula;
+            debugPrintVector("Particula dentro da LS:",particula.position);
+        } else {
+            new_makespan_machine = decodedSolution[maquina_critica];
+        }
+    }
+}
+
+void twoSwapMachine (Particle &particula){
+    bool debug = false;
+    vector < vector <int> > decodedSolution = decode(particula.best_position,debug);
+
+    IPMTC ipmtc;
+
+    tuple <int,int,double> solutionResults = ipmtc.funcaoAvaliativaDetalhada(decodedSolution);
+
+    int maquina_critica;
+    int maquina_folgada;
+    double makespan;
+    tie (maquina_critica,maquina_folgada,makespan) = solutionResults;
+
+    //Pegar o tamanho da particula
+    int tamanho_particula = decodedSolution[maquina_critica].size();
+    
+    //Cria um vetor com todos os pontos selecionaveis
+    vector <pair <int,int>> posicoes;
+    for (int i = 0; i < tamanho_particula ; i++){
+        for (int j = (i + 1) ; j < tamanho_particula; j++){
+            posicoes.push_back(pair <int,int> (i,j));
+        }
+    }
+
+    //Mistura esse vetor e seleciona 100% deles
+    shuffleVec(posicoes);
+    int porcentagem = posicoes.size() * 1;
+    
+    //Realiza as interações, se alguma houver melhora substituia a original e vida que segue
+    vector <int> new_makespan_machine = decodedSolution[maquina_critica];
+    for (int i = 0; i < porcentagem; i++){
+        swap(new_makespan_machine[posicoes[i].first], new_makespan_machine[posicoes[i].second]);
+        int temp_fitness = ipmtc.getTempoUnico(new_makespan_machine);
+        if (temp_fitness < particula.fitness){
+            if (particula.best_fitness > temp_fitness){
+                media_melhora_twoswap += (particula.best_fitness - temp_fitness);
+                melhora_twoswap = true;
+            }
+            decodedSolution[maquina_critica] = new_makespan_machine;
+            vector <double> new_position = recode(decodedSolution, debug);
+            Particle new_particula = Particle(new_position);
+            particula = new_particula;
+        } else{
+            new_makespan_machine = decodedSolution[maquina_critica];
+        }
+    }
+}
 #endif

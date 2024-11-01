@@ -47,10 +47,15 @@ public:
         position.resize(tamanho_particula);
         velocity.resize(tamanho_particula);
 
-        for (int i = 0; i < tamanho_particula; i++) {
+        IPMTC ipmtc;
+        position = recode(ipmtc.gerarSolucaoHeuristicaBasica(false));
+        velocity = position;
+
+        /*for (int i = 0; i < tamanho_particula; i++) {
             position[i] = randomDouble(xmin,xmax);
             velocity[i] = randomDouble(xmin,xmax);
-        }
+        }*/
+       
         initial_position = position;
         fitness = evaluate(position,false);
         initial_fitness = fitness;
@@ -86,7 +91,7 @@ public:
     }
 
     void atualizarVelocidade(vector<double>& global_best_position) {
-        #pragma omp parallel for
+        //#pragma omp parallel for
         for (int i = 0; i < w; i++) {
             double r1 = randomDouble(0,1);
             double r2 = randomDouble(0,1);
@@ -104,18 +109,21 @@ public:
         //#pragma omp parallel for
         for (int i = 0; i < w; i++) {
             position[i] += velocity[i];
-            while (position[i] < xmin){
-                position[i] += xmax;
-            }
-            while (position[i] > xmax){
-                position[i] -= xmax;
+            // Normaliza usando fmod
+            position[i] = fmod(position[i] - xmin, xmax - xmin) + xmin;
+        
+            // Se position[i] for negativa após o fmod, ajusta para o intervalo
+            if (position[i] < xmin) {
+                position[i] += (xmax - xmin);
             }
 
             if (position[i] > xmax || position[i] < xmin){
                 cout << "ERRO FATAL O LOOP DE ARREDONDAMENTO FALHOU" << endl;
+                cout << position[i] << " <||> xmax:" << xmax << " || xmin:" << xmin << " Velocity: " << velocity[i] << endl;
                 exit(EXIT_FAILURE);
             }
         }
+
         fitness = evaluate(position,false);
         if (fitness < best_fitness) {
             best_position = position;
@@ -128,6 +136,7 @@ public:
             //cout << "Particula pertubada" << endl;
             //Aplica Pertubação nessa particula
             pertubaParicula();
+            recalcularParticle();
         }
         return false;
     }
@@ -162,7 +171,7 @@ public:
     }
 
     void pertubaParicula(){
-        int percent_size = ceil(w * 0.1);
+        int percent_size = ceil(w * 0.5);
         for (int i = 0; i < percent_size; i++){
             int random_pos = randomInt(0,w);
             position[random_pos] = randomDouble(xmin,xmax);

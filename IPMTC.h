@@ -96,7 +96,7 @@ public:
 
     //Retorna o tempo da solução de uma unica maquina
     int getTempoUnico(vector <int> solucaoDaMaquina){
-        int qtdTrocas =  ktns.doKTNS(solucaoDaMaquina);
+        int qtdTrocas =  ktns.KTNSLeo(solucaoDaMaquina);
         int tempoMaquina = 0;
         for (int i = 0; i < solucaoDaMaquina.size() ; i++){
                 tempoMaquina += tempo_tarefa[solucaoDaMaquina[i]];
@@ -112,7 +112,7 @@ public:
         vector <int> trocaMaquinas(m,0);
 
         for (int i = 0; i < solucao.size(); i++){
-            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
+            trocaMaquinas[i] = ktns.KTNSLeo(solucao[i]);
 
             for (int j = 0; j < solucao[i].size() ; j++){
                 tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
@@ -169,7 +169,7 @@ public:
         vector <int> trocaMaquinas(m,0);
 
         for (int i = 0; i < solucao.size(); i++){
-            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
+            trocaMaquinas[i] = ktns.KTNSLeo(solucao[i]);
 
             for (int j = 0; j < solucao[i].size() ; j++){
                 tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
@@ -213,7 +213,7 @@ public:
     int getQuantidadTrocasComAdd(vector <int> solucaoDaMaquina, int novaTarefa){
         vector <int> tempVec = solucaoDaMaquina;
         tempVec.push_back(novaTarefa);
-        return ktns.doKTNS(tempVec);
+        return ktns.KTNSLeo(tempVec);
     }
 
     int getPosMenorElementoVector(vector <int>& vetor){
@@ -511,6 +511,44 @@ public:
         return solucao;
     }
 
+    //Gera uma solução usando uma heuristica simples de organização de tarefas
+    vector < vector <int> > gerarSolucaoHeuristicaBasica(bool printSolution){
+        //Implementar uma heuristica aqui
+        vector <vector <int>> solucao(m,vector <int>());
+
+        //Primeira tarefa de cada máquina: Tarefa com menor tempo de processamento 
+        //entre as que requisitarem o maior número de ferramentas.
+        vector <int> todas_tarefas;
+        for (int i = 0; i < w; i++){
+            todas_tarefas.push_back(i);
+        }
+
+        shuffleVec(todas_tarefas);
+
+        //Fazer a alocação inicial
+        for (int i = 0 ; i < m; i++){
+            solucao[i].push_back(todas_tarefas[0]);
+            removeDoVector(todas_tarefas,todas_tarefas[0]);
+        }
+
+        //SO  MANDA PRA MENOR MAQUINA
+        while(!todas_tarefas.empty()){
+            int menorMaquina = getMenorMaquina(solucao);
+            solucao[menorMaquina].push_back(todas_tarefas[0]);
+            removeDoVector(todas_tarefas,todas_tarefas[0]);
+        }
+
+
+       
+        if(printSolution){
+            debugPrintMatriz("A solução inical é:",solucao);
+            cout << "Quantidade de trocas: " << getQuantidadeTrocas(solucao) << endl;
+            cout << "Makespan: " << funcaoAvaliativa(solucao) << endl;
+        }
+
+        return solucao;
+    }
+
     vector < vector <int>> gerarSolucaoAleatoria (bool printSolution){
         auto start_tempo_HC = chrono::high_resolution_clock::now();
 
@@ -599,11 +637,15 @@ public:
         vector <int> trocaMaquinas(m,0);
 
         for (int i = 0; i < solucao.size(); i++){
-            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
-            for (int j = 0; j < solucao[i].size() ; j++){
-                tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
+            if(solucao[i].size() == 0){
+                 tempoMaquinas[i] = 0;
+            } else {
+                trocaMaquinas[i] = ktns.KTNSLeo(solucao[i]);
+                for (int j = 0; j < solucao[i].size() ; j++){
+                    tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
+                }
+                tempoMaquinas[i] += (trocaMaquinas[i] * p);
             }
-            tempoMaquinas[i] += (trocaMaquinas[i] * p);
         }
 
         double makespan =  tempoMaquinas[0];
@@ -637,7 +679,7 @@ public:
         tuple<int,int,double> retorno;
 
         for (int i = 0; i < solucao.size(); i++){
-            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
+            trocaMaquinas[i] = ktns.KTNSLeo(solucao[i]);
             for (int j = 0; j < solucao[i].size() ; j++){
                 tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
             }
@@ -677,7 +719,7 @@ public:
         debugPrintMatriz("A solução é:",solucao);
 
         for (int i = 0; i < solucao.size(); i++){
-            trocaMaquinas[i] = ktns.doKTNS(solucao[i]);
+            trocaMaquinas[i] = ktns.KTNSLeo(solucao[i]);
             for (int j = 0; j < solucao[i].size() ; j++){
                 tempoMaquinas[i] += tempo_tarefa[solucao[i][j]];
             }
@@ -720,7 +762,7 @@ public:
     double getQuantidadeTrocas(vector <vector <int>> solucao){
         int qtd_trocas = 0;
         for (int i = 0; i < solucao.size(); i++){
-            qtd_trocas += ktns.doKTNS(solucao[i]);
+            qtd_trocas += ktns.KTNSLeo(solucao[i]);
         }
 
         return qtd_trocas;
@@ -728,7 +770,7 @@ public:
 
     //Retorna a quantidade de trocas de uma solução
     double getQuantidadeTrocasMaquina(vector <int>& solucao){
-        int qtd_trocas = ktns.doKTNS(solucao);
+        int qtd_trocas = ktns.KTNSLeo(solucao);
 
         return qtd_trocas;
     }

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <utility>
 #include "IPMTC.h"
+#include <stdexcept>
 
 extern int m;
 
@@ -17,33 +18,46 @@ using namespace std;
     //resto desta divisão indicará a qual máquina esta tarefa será alocada.
 
 vector <vector <int> > decode (vector<double> solucao_particula,bool& debug){
-    //Inicia a matriz de solução
-    vector <vector <int> > solucao(m,vector <int>());
-
-    //Gera um vetor de pair onde first é sua posição original e second o seu valor de indice da particula
-    vector< pair <int,double> > solucao_particula_pair;
-
-    for (int i = 0; i < solucao_particula.size(); i++){
-        solucao_particula_pair.push_back(pair<int,double>(i,solucao_particula[i]));
-    }
-
-    //Ordena a solução da particula
-    sort(solucao_particula_pair.begin(), solucao_particula_pair.end(),sortBySecondDouble);
-
-    if(debug){
-        cout << "Os dados da particula após sua ordenação são:" << endl;
-        for (int i = 0; i < solucao_particula_pair.size(); i++){
-            cout << "Pos Orig: " << solucao_particula_pair[i].first << " | " << "Valor: " << solucao_particula_pair[i].second << " | Vai pra máquina: " <<getFirstDigit(solucao_particula_pair[i].second) <<endl;
+    try{
+        if (solucao_particula.size() != w){
+            cout << "ERRO FATAL, PARTICULA NÃO É DO TAMANHO DA QUANTIDADE DE TAREFAS" << endl;
+            debugPrintVector("Particula:",solucao_particula);
         }
-    }
+        //debugPrintVector("Particula:",solucao_particula);
 
-    //Como o tamanho da particula é do tamanho da quantidade de tarefas, realiza o calculo da maquina
-    for (int i = 0; i < solucao_particula_pair.size(); i++){
-        int temp_maquina = getFirstDigit(solucao_particula_pair[i].second);
-        solucao[temp_maquina].push_back(solucao_particula_pair[i].first);
-    }
+        //Inicia a matriz de solução
+        vector <vector <int> > solucao(m,vector <int>());
 
-    return solucao;
+        //Gera um vetor de pair onde first é sua posição original e second o seu valor de indice da particula
+        vector< pair <int,double> > solucao_particula_pair;
+
+        for (int i = 0; i < solucao_particula.size(); i++){
+            solucao_particula_pair.push_back(pair<int,double>(i,solucao_particula[i]));
+        }
+
+        //Ordena a solução da particula
+        sort(solucao_particula_pair.begin(), solucao_particula_pair.end(),sortBySecondDouble);
+
+        if(debug){
+            cout << "Os dados da particula após sua ordenação são:" << endl;
+            for (int i = 0; i < solucao_particula_pair.size(); i++){
+                cout << "Pos Orig: " << solucao_particula_pair[i].first << " | " << "Valor: " << solucao_particula_pair[i].second << " | Vai pra máquina: " <<getFirstDigit(solucao_particula_pair[i].second) <<endl;
+            }
+        }
+
+        //Como o tamanho da particula é do tamanho da quantidade de tarefas, realiza o calculo da maquina
+        for (int i = 0; i < solucao_particula_pair.size(); i++){
+            int temp_maquina = getFirstDigit(solucao_particula_pair[i].second);
+            solucao[temp_maquina].push_back(solucao_particula_pair[i].first);
+        }
+
+        return solucao;
+    } catch (const runtime_error& e) {
+        // Captura a exceção e trata
+        cout << "Exceção capturada: " << e.what() << endl;
+        debugPrintVector("Particula:",solucao_particula);
+        exit(EXIT_FAILURE);
+    }
 }
 
 
@@ -55,7 +69,7 @@ double evaluate(vector<double> solucao_particula,bool debug){
     return ipmtc.funcaoAvaliativa(solucao);
 }
 
-vector <double> recode ( vector < vector <int> > solucao,bool& debug){
+vector <double> recode ( vector < vector <int> > solucao,bool debug=false){
     double maxFloat = 1 - 0.000001;
 
     vector <double> particula(w,0);

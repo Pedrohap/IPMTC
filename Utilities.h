@@ -90,7 +90,8 @@ void printLinha(){
     cout << "------------------------------------------------" << endl;
 }
 
-void debugPrintVector(string menssagem, vector <int> vetor){
+template<typename T>
+void debugPrintVector(string menssagem, vector<T>& vetor){
     cout << menssagem << endl;
     for(int i = 0; i < vetor.size(); i++){
         cout << vetor[i] << " ";

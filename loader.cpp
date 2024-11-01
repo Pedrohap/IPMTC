@@ -166,6 +166,17 @@ void processFile(const fs::path& filePath) {
         }
     }
 
+    //Debug de entrada
+    if (false){
+        cout << "Quantidade de Maquinas: " << m << endl;
+        cout << "Quantidade de Tarefas: " << w << endl;
+        cout << "Quantidade de Ferramentas: " << t << endl;
+        cout << "Capacidade Magazine: " << c << endl;
+        cout << "Tempo de troca: " << p << endl;
+        debugPrintMatriz("Matriz de Ferramentas:",matriz_ferramentas);
+        printLinha();
+    }
+
     IPMTC ipmtc;
 
 
@@ -240,7 +251,7 @@ void processFile(const fs::path& filePath) {
             }
 
             ofstream resultData("solucoes/resultPSO.csv", ios::app);
-            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << media_melhora_insertion <<"|" << media_melhora_exchange <<"|" << ls_qtd_melhora_global << "|" << duration_tempo_total.count() << endl;
+            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << val_sol_inicial << "|"<< pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << media_melhora_insertion <<"|" << media_melhora_exchange <<"|" << ls_qtd_melhora_global << "|" << duration_tempo_total.count() << endl;
 
             resultData.close();
 
@@ -301,7 +312,7 @@ int main (){
                 fs::create_directory("solucoes");
             }
             ofstream resultData("solucoes/resultPSO.csv");
-            resultData << "NOME_INSTANCIA|MAKESPAN|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_INSERION|MEDIA_MELHORA_EXCHANGE|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
+            resultData << "NOME_INSTANCIA|MAKESPAN|MELHOR_SOLUCAO_INICIAL|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_INSERION|MEDIA_MELHORA_EXCHANGE|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
             resultData.close();
         } 
 

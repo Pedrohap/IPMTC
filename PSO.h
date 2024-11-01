@@ -28,6 +28,7 @@ extern double media_melhora_twoswap;
 extern double media_melhora_insertion;
 extern double media_melhora_exchange;
 extern int ls_qtd_melhora_global;
+extern int val_sol_inicial;
 
 using namespace std;
 
@@ -49,13 +50,14 @@ public:
         if (qtd_particulas > CAP_PARTICULAS){
             qtd_particulas = CAP_PARTICULAS;
         }
+        
+        vector <int> posicoes_particulas (qtd_particulas);
 
         for (int i = 0; i < qtd_particulas ; i++){
             particles.push_back(Particle(w));
-            while (!particles[i].isInAllMachines()) {
-                particles[i] = Particle(w);
-            }
+            posicoes_particulas[i] = i;
         }
+
         for (int i = 0; i < qtd_particulas ; i++){
             if (!particles[i].isInAllMachines()) {
                 cout << "PARTICULA ESCAPOU!" << endl;
@@ -93,6 +95,8 @@ public:
                         bestParcticle = particles[i];
                         pso_have_melhora = true;
                         pso_int_bg_final = iter;
+
+                        val_sol_inicial = global_best_fitness;
                     }
                 } else {
                     break;
@@ -103,18 +107,19 @@ public:
                 pso_qtd_bg++;
                 pso_have_melhora = false;
             }
-            
-            if(USING_LS){
+            //if(USING_LS){
+            if(false){
                 #pragma omp parallel for
                 for (int i = 0; i < qtd_particulas; i++)
                 {
                     particles[i].atualizarVelocidade(global_best_position);
-                    if(particles[i].atualizarPosicao()){
-                        //#pragma omp atomic
-                        //++ls_counter;
-                        //insertion(particles[i]);
-                        //exchange(particles[i]);
-                    }
+                    particles[i].atualizarPosicao();
+                    #pragma omp atomic
+                    ++ls_counter;
+                    insertion(particles[i]);
+                    exchange(particles[i]);
+                    twoOPTMachine(particles[i]);
+                    twoSwapMachine(particles[i]);
                 }
             } else { 
                 #pragma omp parallel for
@@ -132,6 +137,21 @@ public:
                     }*/
                 }
             }
+
+            if(USING_LS){
+                //Selciona 5% das particulas
+                int qtd_particulas_ls = qtd_particulas * 0.05;
+                shuffleVec(posicoes_particulas);
+
+                //#pragma omp parallel for
+                for (int i = 0; i < qtd_particulas_ls; i++){
+                    insertion(particles[posicoes_particulas[i]]);
+                    exchange(particles[posicoes_particulas[i]]);
+                    //twoOPTMachine(particles[posicoes_particulas[i]]);
+                    twoSwapMachine(particles[posicoes_particulas[i]]);
+                }
+                ls_counter += qtd_particulas_ls;
+            }
             
             //crossOver(particles);
 
@@ -140,7 +160,7 @@ public:
                 //Adicionar a quantidade de melhoras na melhor global baseado na busca local
                 if (particles[i].best_fitness < global_best_fitness) {
                     if(USING_LS){
-                        //++ls_counter;
+                        //ls_counter++;
                         //insertion(particles[i]);
                         //exchange(particles[i]);
                     }
@@ -209,18 +229,18 @@ public:
             }
         }
 
-        if(USING_LS){
+        /*if(USING_LS){
             media_melhora_insertion = 0;
             media_melhora_exchange = 0;
             ++ls_counter;
             insertion(bestParcticle);
             exchange(bestParcticle);
-        }
+        }*/
 
         //media_melhora_twoapt = media_melhora_twoapt/((qtd_particulas*0.1)*pso_qtd_int);
         //media_melhora_twoswap = media_melhora_twoswap/((qtd_particulas*0.1)*pso_qtd_int);
-        //media_melhora_insertion = media_melhora_insertion/ls_counter;
-        //media_melhora_exchange = media_melhora_exchange/ls_counter;
+        media_melhora_insertion = media_melhora_insertion/ls_counter;
+        media_melhora_exchange = media_melhora_exchange/ls_counter;
 
         return bestParcticle;
     }
