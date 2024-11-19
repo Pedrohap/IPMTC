@@ -161,4 +161,79 @@ vector <double> recode ( vector < vector <int> > solucao,bool debug=false){
     return particulaDone;
 }
 
+vector <vector <int> > decode2 (vector<double> solucao_particula,bool debug=false){
+    try{
+        if (solucao_particula.size() != (w + m)){
+            cout << "ERRO FATAL, PARTICULA NÃO É DO TAMANHO DA QUANTIDADE DE TAREFAS + QUANTIDADE DE MAQUINAS" << endl;
+            debugPrintVector("Particula:",solucao_particula);
+        }
+        if(debug){
+            debugPrintVector("Particula antes da ordenação:",solucao_particula);
+        }
+
+        //Inicia a matriz de solução
+        vector <vector <int> > solucao(m,vector <int>());
+
+        //Gera um vetor de pair onde first é sua posição original e second o seu valor de indice da particula
+        vector< pair <int,double> > solucao_particula_pair;
+
+        for (int i = 0; i < solucao_particula.size(); i++){
+            solucao_particula_pair.push_back(pair<int,double>(i,solucao_particula[i]));
+        }
+
+        //Ordena a solução da particula
+        sort(solucao_particula_pair.begin(), solucao_particula_pair.end(),sortBySecondDouble);
+
+        if(debug){
+            cout << "Os dados da particula após sua ordenação são:" << endl;
+            for (int i = 0; i < solucao_particula_pair.size(); i++){
+                cout << "Pos Orig: " << solucao_particula_pair[i].first << " | " << "Valor: " << solucao_particula_pair[i].second << endl;
+            }
+        }
+
+        //Ache a maquina e monte a solução
+        for (int i = 0; i < solucao_particula.size(); i++){
+            //Uma maquina, não tem porque fazer isso
+            if(m == 1){
+                solucao[i].push_back(solucao_particula_pair[i].first);
+            } else
+
+            //Achou uma maquina
+            if(solucao_particula_pair[i].first >= w){
+                int machine_temp = i;
+                //Percorre todos anteriores até acha uma outra maquina
+                while(solucao_particula_pair[machine_temp].first < w){
+                    machine_temp--;
+                    //Ciclo pro fim
+                    if(machine_temp < 0){
+                        machine_temp = solucao_particula.size() - 1;
+                    }
+                    //Achei outra maquina, parar imediatamente
+                    if(machine_temp>= w){
+                        break;
+                    }
+
+                    solucao[solucao_particula.size() - solucao_particula_pair[i].first].push_back(solucao_particula_pair[machine_temp].first);
+                }
+            }
+        }
+
+        return solucao;
+    } catch (const runtime_error& e) {
+        // Captura a exceção e trata
+        cout << "Exceção capturada: " << e.what() << endl;
+        debugPrintVector("Particula:",solucao_particula);
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+double evaluate2(vector<double> solucao_particula,bool debug=false){
+    vector <vector <int> > solucao = decode2(solucao_particula, debug);
+
+    IPMTC ipmtc;
+    
+    return ipmtc.funcaoAvaliativa(solucao);
+}
+
 #endif
