@@ -54,7 +54,12 @@ public:
         vector <int> posicoes_particulas (qtd_particulas);
 
         for (int i = 0; i < qtd_particulas ; i++){
-            particles.push_back(Particle(w));
+            if (DECODER_VER == 1){
+                particles.push_back(Particle(w));
+            } else if (DECODER_VER == 2){
+                particles.push_back(Particle(w+m));
+            }
+            
             posicoes_particulas[i] = i;
         }
 
@@ -68,6 +73,12 @@ public:
             }
         }
         Particle bestParcticle(w);
+
+        if (DECODER_VER == 1){
+            bestParcticle = Particle(w);
+        } else if (DECODER_VER == 2){
+            bestParcticle = Particle(w+m);
+        }
         pso_int_bg_final = 0;
         pso_qtd_bg = 0;
         pso_qtd_int = 0;

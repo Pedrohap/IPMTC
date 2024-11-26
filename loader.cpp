@@ -20,6 +20,9 @@ namespace fs = filesystem;
     //PSO = Particle Swarm Optimization
 const string METODO = "PSO";
 
+//1 para versão antiga, 2 para a versão onde a particula tem tamanho n+2
+const int DECODER_VER = 2;
+
 //QUantiade de Threads
 const int QTD_THREADS = 6;
 
@@ -31,7 +34,7 @@ const int CAP_PARTICULAS = 500;
 const int EXECUCOES = 5;
 
 //Se vai usar ou não busca local
-const bool USING_LS = true;
+const bool USING_LS = false;
 
 //Nome da pasta principal que carregara as intacias
 //const string PASTA_PRINCIPAL = "5% Test SmallJobs with some LargerJobs";

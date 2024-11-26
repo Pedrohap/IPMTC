@@ -20,7 +20,7 @@ using namespace std;
 vector <vector <int> > decode (vector<double> solucao_particula,bool& debug){
     try{
         if (solucao_particula.size() != w){
-            cout << "ERRO FATAL, PARTICULA NÃO É DO TAMANHO DA QUANTIDADE DE TAREFAS" << endl;
+            cout << "ERRO FATAL, PARTICULA NÃO É DO TAMANHO DA QUANTIDADE DE TAREFAS DECODE 1" << endl;
             debugPrintVector("Particula:",solucao_particula);
         }
         //debugPrintVector("Particula:",solucao_particula);
@@ -162,75 +162,92 @@ vector <double> recode ( vector < vector <int> > solucao,bool debug=false){
 }
 
 vector <vector <int> > decode2 (vector<double> solucao_particula , bool debug=false){
-    try{
-        if (solucao_particula.size() != (w + m)){
-            cout << "ERRO FATAL, PARTICULA NÃO É DO TAMANHO DA QUANTIDADE DE TAREFAS + QUANTIDADE DE MAQUINAS" << endl;
-            debugPrintVector("Particula:",solucao_particula);
+    try {
+        if (solucao_particula.size() != (w + m)) {
+          cout << "ERRO FATAL, PARTICULA NÃO É DO TAMANHO DA QUANTIDADE DE TAREFAS + QUANTIDADE DE MAQUINAS" << endl;
+          debugPrintVector("Particula:", solucao_particula);
         }
-        if(debug){
-            debugPrintVector("Particula antes da ordenação:",solucao_particula);
-        }
-
-        //Inicia a matriz de solução
-        vector <vector <int> > solucao(m,vector <int>());
-
-        //Gera um vetor de pair onde first é sua posição original e second o seu valor de indice da particula
-        vector< pair <int,double> > solucao_particula_pair;
-
-        for (int i = 0; i < solucao_particula.size(); i++){
-            solucao_particula_pair.push_back(pair<int,double>(i,solucao_particula[i]));
+        if (debug) {
+          debugPrintVector("Particula antes da ordenação:", solucao_particula);
         }
 
-        //Ordena a solução da particula
-        sort(solucao_particula_pair.begin(), solucao_particula_pair.end(),sortBySecondDouble);
+            // Inicia a matriz de solução
+        vector < vector < int >> solucao(m, vector < int > ());
 
-        if(debug){
-            cout << "Os dados da particula após sua ordenação são:" << endl;
-            for (int i = 0; i < solucao_particula_pair.size(); i++){
-                cout << "Pos Orig: " << solucao_particula_pair[i].first << " | " << "Valor: " << solucao_particula_pair[i].second << endl;
+            // Gera um vetor de pair onde first é sua posição original e second o seu valor de indice da particula
+        vector < pair < int, double >> solucao_particula_pair;
+
+            for (int i = 0; i < solucao_particula.size(); i++) {
+          solucao_particula_pair.push_back(pair < int, double > (i, solucao_particula[i]));
+        }
+
+            // Ordena a solução da particula
+        sort(solucao_particula_pair.begin(), solucao_particula_pair.end(), sortBySecondDouble);
+
+        if (debug) {
+          cout << "Os dados da particula após sua ordenação são:" << endl;
+          for (int i = 0; i < solucao_particula_pair.size(); i++) {
+            cout << "Pos Orig: " << solucao_particula_pair[i].first << " | " << "Valor: " << solucao_particula_pair[i].second << endl;
+          }
+        }
+
+        // Ache a maquina e monte a solução
+        for (int i = 0; i < solucao_particula.size(); i++) {
+          // Uma maquina, não tem porque fazer isso
+          if (m == 1) {
+            solucao[i].push_back(solucao_particula_pair[i].first);
+          } else
+
+            // Achou uma maquina
+            if (solucao_particula_pair[i].first >= w) {
+              if (debug) {
+                cout << "Achei uma maquina sendo ela: " << solucao_particula_pair[i].first << endl;
+              }
+              int machine_temp = i - 1;
+
+                  if (machine_temp < 0) {
+                machine_temp = solucao_particula.size() - 1;
+                if (debug) {
+                  cout << "Ciclei, valor atual " << machine_temp << endl;
+                }
+              }
+
+                  if (debug) {
+                cout << "Valor anterior: " << solucao_particula_pair[i - 1].first << endl;
+              }
+              // Percorre todos anteriores até acha uma outra maquina
+              vector < int > temp_machine_vector;
+              while (solucao_particula_pair[machine_temp].first < w) {
+                if (debug) {
+                  cout << "Estou tentando acessar o elemento de numero: " << machine_temp << endl;
+                }
+                if (debug) {
+                  cout << "Maquina " << solucao_particula_pair[i].first - w << " recebera tarefa" << endl;
+                }
+                temp_machine_vector.push_back(solucao_particula_pair[machine_temp].first);
+                //solucao[solucao_particula_pair[i].first - w].push_back(solucao_particula_pair[machine_temp].first);
+                machine_temp--;
+                // Ciclo pro fim
+                if (machine_temp < 0) {
+                  machine_temp = solucao_particula.size() - 1;
+                  if (debug) {
+                    cout << "Ciclei, valor atual " << machine_temp << endl;
+                  }
+                }
+                // Achei outra maquina, parar imediatamente
+                if (solucao_particula_pair[machine_temp].first >= w) {
+                  reverse(temp_machine_vector.begin(), temp_machine_vector.end());
+                  solucao[solucao_particula_pair[i].first - w] = temp_machine_vector;
+                  break;
+                }
+              }
             }
         }
 
-        //Ache a maquina e monte a solução
-        for (int i = 0; i < solucao_particula.size(); i++){
-            //Uma maquina, não tem porque fazer isso
-            if(m == 1){
-                solucao[i].push_back(solucao_particula_pair[i].first);
-            } else
-
-            //Achou uma maquina
-            if(solucao_particula_pair[i].first >= w){
-                if(debug){
-                    cout << "Achei uma maquina sendo ela: " << solucao_particula_pair[i].first << endl;
-                }
-                int machine_temp = i-1;
-                
-                if (debug){
-                    cout << "Valor anterior: " << solucao_particula_pair[i-1].first << endl;
-                }
-                //Percorre todos anteriores até acha uma outra maquina
-                while(solucao_particula_pair[machine_temp].first < w){
-                    if(debug){
-                        cout << "Estou tentando acessar o elemento de numero: " << machine_temp << endl;
-                    }
-                    if(debug){
-                        cout << "Maquina " << solucao_particula_pair[i].first - w << " recebera tarefa" << endl;
-                    }
-                    solucao[solucao_particula_pair[i].first - w].push_back(solucao_particula_pair[machine_temp].first);
-                    machine_temp--;
-                    //Ciclo pro fim
-                    if(machine_temp < 0){
-                        machine_temp = solucao_particula.size() - 1;
-                        if (debug){
-                            cout << "Cliclei, valor atual " << machine_temp << endl;
-                        }
-                    }
-                    //Achei outra maquina, parar imediatamente
-                    if(solucao_particula_pair[machine_temp].first>= w){
-                        break;
-                    }
-                }
-            }
+        IPMTC ipmtc;
+        if (!ipmtc.isValida(solucao)){
+            cout << "SOLUCAO INVALIDA OBITIDA NA DECODIFICAÇÃO" << endl;
+            exit(EXIT_FAILURE);
         }
 
         return solucao;
@@ -240,6 +257,65 @@ vector <vector <int> > decode2 (vector<double> solucao_particula , bool debug=fa
         debugPrintVector("Particula:",solucao_particula);
         exit(EXIT_FAILURE);
     }
+}
+
+vector < double > recode2(vector < vector < int >> solucao, bool debug = false) {
+  double maxFloat = 1 - 0.000001;
+
+  vector < double > particula((w + m), 0);
+
+  for (int i = 0; i < particula.size(); i++) {
+    double randomTemp = randomDouble(0, maxFloat);
+    while (isInVectorDouble(particula, randomTemp)) {
+      randomTemp = randomDouble(0, maxFloat);
+    }
+    particula[i] = randomTemp;
+  }
+
+  sort(particula.begin(), particula.end());
+
+  for (int i = 0; i < particula.size(); i++) {
+    for (int j = i + 1; j < particula.size(); j++) {
+      if (particula[i] == particula[j]) {
+        cout << "Particula Duplicada 1: " << particula[i] << endl;
+        for (int jo = 0; jo < particula.size(); jo++) {
+          cout << particula[jo] << " ";
+        }
+        cout << endl;
+      }
+    }
+  }
+
+  vector < double > particulaDone((w + m), 0);
+  int temp_machine_count = w;
+  int temp_element_count = 0;
+
+  for (int i = 0; i < solucao.size(); i++) {
+    for (int j = 0; j < solucao[i].size(); j++) {
+      particulaDone[solucao[i][j]] = particula[temp_element_count];
+      temp_element_count++;
+    }
+    particulaDone[temp_machine_count] = particula[temp_element_count];
+    temp_machine_count++;
+    temp_element_count++;
+  }
+
+  if (debug) {
+    cout << "PARTICULA: ";
+    for (int i = 0; i < particula.size(); i++) {
+      cout << particula[i] << " ";
+    }
+    cout << endl;
+  }
+  if (debug) {
+    cout << "PARTICULA DONE: ";
+    for (int i = 0; i < particulaDone.size(); i++) {
+      cout << particulaDone[i] << " ";
+    }
+    cout << endl;
+  }
+
+  return particulaDone;
 }
 
 

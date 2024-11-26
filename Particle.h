@@ -9,7 +9,7 @@
 #include "Utilities.h"
 #include "Decoder.h"
 
-
+extern const int DECODER_VER;
 
 //const double c1 = 2.0;
 //const double c2 = 2.0;
@@ -42,13 +42,36 @@ public:
     //Construtor de uma Particula aleatoria
     Particle(int tamanho_particula) {
         xmin = 0.0;
-        xmax = m - 0.000001;
+
+        if (DECODER_VER == 1){
+            xmax = m - 0.000001;
+        } else if (DECODER_VER == 2){
+            xmax = 1 - 0.000001;
+        }
+
         cont_stagnado = 0;
         position.resize(tamanho_particula);
         velocity.resize(tamanho_particula);
 
         IPMTC ipmtc;
-        position = recode(ipmtc.gerarSolucaoHeuristicaBasica(false));
+        if (DECODER_VER == 1){
+            position = recode(ipmtc.gerarSolucaoHeuristicaBasica(false));
+            fitness = evaluate(position,false);
+        } else if (DECODER_VER == 2){
+            position = recode2(ipmtc.gerarSolucaoHeuristicaBasica(false));
+            
+            //Teste de recoder
+            /*vector <vector <int>> new_solutations = ipmtc.gerarSolucaoHeuristicaBasica(false);
+            position = recode2(new_solutations);
+            vector <vector <int>> new_solutations_decoded = decode2(position);
+            if(new_solutations_decoded != new_solutations){
+                cout << "RECODER FALHOU KRAI FUDEU!" << endl;
+                exit(EXIT_FAILURE);
+            }*/
+
+            fitness = evaluate2(position,false);
+        }
+
         velocity = position;
 
         /*for (int i = 0; i < tamanho_particula; i++) {
@@ -57,7 +80,6 @@ public:
         }*/
        
         initial_position = position;
-        fitness = evaluate(position,false);
         initial_fitness = fitness;
         best_position = position;
         best_fitness = fitness;
@@ -74,7 +96,11 @@ public:
             velocity[i] = randomDouble(xmin,xmax);
         }
         initial_position = position;
-        fitness = evaluate(position,false);
+        if (DECODER_VER == 1){
+            fitness = evaluate(position,false);
+        } else if (DECODER_VER == 2){
+            fitness = evaluate2(position,false);
+        }
         initial_fitness = fitness;
         best_position = position;
         best_fitness = fitness;
@@ -82,7 +108,11 @@ public:
 
     //Função para caso ocorra alguma alteração externa na particle, sendo necessario recalibrar os valore
     void recalcularParticle(){
-        fitness = evaluate(position,false);
+        if (DECODER_VER == 1){
+            fitness = evaluate(position,false);
+        } else if (DECODER_VER == 2){
+            fitness = evaluate2(position,false);
+        }
 
         if(best_fitness > fitness){
             best_fitness = fitness;
@@ -92,7 +122,7 @@ public:
 
     void atualizarVelocidade(vector<double>& global_best_position) {
         //#pragma omp parallel for
-        for (int i = 0; i < w; i++) {
+        for (int i = 0; i < global_best_position.size(); i++) {
             double r1 = randomDouble(0,1);
             double r2 = randomDouble(0,1);
             velocity[i] = (omega * velocity[i]) + (c1 * r1) * (best_position[i] - position[i]) + (c2 * r2) * (global_best_position[i] - position[i]);
@@ -107,7 +137,7 @@ public:
     //Retorna true, se houve melhora local e retorna false caso não
     bool atualizarPosicao() {
         //#pragma omp parallel for
-        for (int i = 0; i < w; i++) {
+        for (int i = 0; i < position.size(); i++) {
             position[i] += velocity[i];
             // Normaliza usando fmod
             position[i] = fmod(position[i] - xmin, xmax - xmin) + xmin;
@@ -124,7 +154,11 @@ public:
             }
         }
 
-        fitness = evaluate(position,false);
+        if (DECODER_VER == 1){
+            fitness = evaluate(position,false);
+        } else if (DECODER_VER == 2){
+            fitness = evaluate2(position,false);
+        }
         if (fitness < best_fitness) {
             best_position = position;
             best_fitness = fitness;
@@ -143,16 +177,29 @@ public:
 
     //Verifica se esta particula esta utilizando todas as maquinas disponiveis
     bool isInAllMachines() {
-        vector <int> used_machines(m,0);
-        for(int i = 0; i < position.size(); i++){
-            used_machines[getFirstDigit(position[i])]++;
-        }
-        for (int i = 0; i < m ;i++){
-            if(used_machines[i] == 0){
-                return false;
+        if (DECODER_VER == 1){
+            vector <int> used_machines(m,0);
+            for(int i = 0; i < position.size(); i++){
+                used_machines[getFirstDigit(position[i])]++;
             }
+            for (int i = 0; i < m ;i++){
+                if(used_machines[i] == 0){
+                    return false;
+                }
+            }
+            return true;
+        } else if (DECODER_VER == 2){
+            vector <vector<int>> temp_solution = decode2(position);
+            for (int i = 0; i < temp_solution.size(); i++){
+                if(temp_solution[i].size() == 0){
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
+        cout << "NÃO DEVERIA TER CHEGADO AQUI, FALHA NO ISINALLMACHINES" << endl;
+        exit(EXIT_FAILURE);
+        return false;
     }
 
     string toStringCsv(vector<double> particle_position){
@@ -167,13 +214,22 @@ public:
 
     vector < vector <int> > getSolution(vector<double> particle_position){
         bool debugs = false;
+
+        if (DECODER_VER == 1){
+            return decode(particle_position, debugs);
+        } else if (DECODER_VER == 2){
+            return decode2(particle_position, debugs);
+        }
+
+        cout << "NÃO DEVERIA TER CHEGADO AQUI, FALHA NO getSolution" << endl;
+        exit(EXIT_FAILURE);
         return decode(particle_position, debugs);
     }
 
     void pertubaParicula(){
-        int percent_size = ceil(w * 0.5);
+        int percent_size = ceil(position.size() * 0.5);
         for (int i = 0; i < percent_size; i++){
-            int random_pos = randomInt(0,w);
+            int random_pos = randomInt(0,position.size());
             position[random_pos] = randomDouble(xmin,xmax);
         }
         cont_stagnado = 0;
