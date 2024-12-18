@@ -7,6 +7,8 @@
 #include "Utilities.h"
 #include "Particle.h"
 
+extern const int DECODER_VER;
+
 //Houve melhore na busca local do 2APT
 extern bool melhora_twoapt;
 
@@ -30,6 +32,7 @@ using namespace std;
 //Fazer o 2 APT, que pega uma particula (vetor de float), seleciona um 
 //intervalo de 2 pontos e inverte a ordem nesses 2 pontos
 
+//Roda direto na Particula
 void twoOPT (Particle &particula){
     //Pegar o tamanho da particula
     int tamanho_particula = particula.position.size();
@@ -44,7 +47,7 @@ void twoOPT (Particle &particula){
 
     //Mistura esse vetor e seleciona 10% deles
     shuffleVec(posicoes);
-    int porcentagem = posicoes.size() * 1;
+    int porcentagem = posicoes.size() * 0.2;
     
     //Realiza as interações, se alguma houver melhora substituia a original e vida que segue
     Particle new_particula = particula;
@@ -58,12 +61,14 @@ void twoOPT (Particle &particula){
                 melhora_twoapt = true;
             }
             particula = new_particula;
+            //break;
         } else{
             new_particula = particula;
         }
     }
 }
 
+//Roda direto na Particula
 void twoSwap (Particle &particula){
     //Pegar o tamanho da particula
     int tamanho_particula = particula.position.size();
@@ -78,7 +83,7 @@ void twoSwap (Particle &particula){
 
     //Mistura esse vetor e seleciona 10% deles
     shuffleVec(posicoes);
-    int porcentagem = posicoes.size() * 1;
+    int porcentagem = posicoes.size() * 0.2;
     
     //Realiza as interações, se alguma houver melhora substituia a original e vida que segue
     Particle new_particula = particula;
@@ -90,6 +95,7 @@ void twoSwap (Particle &particula){
             if (particula.best_fitness > new_particula.fitness){
                 media_melhora_twoswap += (particula.best_fitness - new_particula.fitness);
                 melhora_twoswap = true;
+                //break;
             }
             particula = new_particula;
         } else{
@@ -98,9 +104,15 @@ void twoSwap (Particle &particula){
     }
 }
 
+//Roda na Solução
 void insertion(Particle particula){
     bool debug = false;
-    vector < vector <int> > decodedSolution = decode(particula.best_position,debug);
+    vector < vector <int> > decodedSolution;
+    if(DECODER_VER == 1){
+        decodedSolution = decode(particula.best_position,debug);
+    } else if (DECODER_VER == 2){
+        decodedSolution = decode2(particula.best_position,debug);
+    }
 
     IPMTC ipmtc;
 
@@ -165,15 +177,26 @@ void insertion(Particle particula){
 
     //Se rodamos todas e melhoramos alteramos a particula que recebemos e encerramos a busca local
     if(insertionMelhorou){
-        vector <double> new_particula_vec = (recode(decodedSolution,debug));
+        vector <double> new_particula_vec ;
+        if(DECODER_VER == 1){
+            new_particula_vec = recode(decodedSolution,debug);
+        } else if (DECODER_VER == 2){
+            new_particula_vec = recode2(decodedSolution,debug);
+        }
         Particle new_particula = Particle(new_particula_vec);
         particula = new_particula;
     }
 }
 
+//Roda na Solução
 void exchange(Particle particula){
     bool debug = false;
-    vector < vector <int> > decodedSolution = decode(particula.best_position,debug);
+    vector < vector <int> > decodedSolution;
+    if(DECODER_VER == 1){
+        decodedSolution = decode(particula.best_position,debug);
+    } else if (DECODER_VER == 2){
+        decodedSolution = decode2(particula.best_position,debug);
+    }
 
     IPMTC ipmtc;
 
@@ -233,7 +256,7 @@ void exchange(Particle particula){
                 tie (maquina_critica,maquina_folgada,makespan) = solutionResults;
                 randomTarefas = decodedSolution[maquina_critica];
                 shuffleVec(randomTarefas);
-                break;
+                //break;
 
              }
 
@@ -242,7 +265,12 @@ void exchange(Particle particula){
 
     //Se rodamos todas e melhoramos alteramos a particula que recebemos e encerramos a busca local
     if(exchangeMelhorou){
-        vector <double> new_particula_vec = (recode(decodedSolution,debug));
+        vector <double> new_particula_vec ;
+        if(DECODER_VER == 1){
+            new_particula_vec = recode(decodedSolution,debug);
+        } else if (DECODER_VER == 2){
+            new_particula_vec = recode2(decodedSolution,debug);
+        }
         Particle new_particula = Particle(new_particula_vec);
         particula = new_particula;
     }
@@ -250,7 +278,13 @@ void exchange(Particle particula){
 
 void twoOPTMachine (Particle &particula, bool debugs = true){
     bool debug = false;
-    vector < vector <int> > decodedSolution = decode(particula.best_position,debug);
+    
+    vector < vector <int> > decodedSolution;
+    if(DECODER_VER == 1){
+        decodedSolution = decode(particula.best_position,debug);
+    } else if (DECODER_VER == 2){
+        decodedSolution = decode2(particula.best_position,debug);
+    }
 
     IPMTC ipmtc;
 
@@ -293,7 +327,12 @@ void twoOPTMachine (Particle &particula, bool debugs = true){
                 melhora_twoapt = true;
             }
             decodedSolution[maquina_critica] = new_makespan_machine;
-            vector <double> new_position = recode(decodedSolution, debug);
+            vector <double> new_position ;
+            if(DECODER_VER == 1){
+                new_position = recode(decodedSolution,debug);
+            } else if (DECODER_VER == 2){
+                new_position = recode2(decodedSolution,debug);
+            }
             Particle new_particula = Particle(new_position);
             particula = new_particula;
             debugPrintVector("Particula dentro da LS:",particula.position);
@@ -305,7 +344,12 @@ void twoOPTMachine (Particle &particula, bool debugs = true){
 
 void twoSwapMachine (Particle &particula){
     bool debug = false;
-    vector < vector <int> > decodedSolution = decode(particula.best_position,debug);
+    vector < vector <int> > decodedSolution;
+    if(DECODER_VER == 1){
+        decodedSolution = decode(particula.best_position,debug);
+    } else if (DECODER_VER == 2){
+        decodedSolution = decode2(particula.best_position,debug);
+    }
 
     IPMTC ipmtc;
 
@@ -342,7 +386,12 @@ void twoSwapMachine (Particle &particula){
                 melhora_twoswap = true;
             }
             decodedSolution[maquina_critica] = new_makespan_machine;
-            vector <double> new_position = recode(decodedSolution, debug);
+            vector <double> new_position ;
+            if(DECODER_VER == 1){
+                new_position = recode(decodedSolution,debug);
+            } else if (DECODER_VER == 2){
+                new_position = recode2(decodedSolution,debug);
+            }
             Particle new_particula = Particle(new_position);
             particula = new_particula;
         } else{

@@ -154,12 +154,10 @@ public:
                 int qtd_particulas_ls = qtd_particulas * 0.05;
                 shuffleVec(posicoes_particulas);
 
-                //#pragma omp parallel for
+                #pragma omp parallel for
                 for (int i = 0; i < qtd_particulas_ls; i++){
-                    insertion(particles[posicoes_particulas[i]]);
-                    exchange(particles[posicoes_particulas[i]]);
-                    //twoOPTMachine(particles[posicoes_particulas[i]]);
-                    twoSwapMachine(particles[posicoes_particulas[i]]);
+                    insertion(particles[i]);
+                    twoSwap(particles[i]);
                 }
                 ls_counter += qtd_particulas_ls;
             }
