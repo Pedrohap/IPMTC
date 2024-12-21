@@ -12,6 +12,7 @@
 extern const int CAP_PARTICULAS;
 
 extern const bool USING_LS;
+extern const string LS_MODE;
 
 int pso_int_bg_final;
 int pso_qtd_bg;
@@ -118,48 +119,48 @@ public:
                 pso_qtd_bg++;
                 pso_have_melhora = false;
             }
-            //if(USING_LS){
-            if(false){
-                #pragma omp parallel for
-                for (int i = 0; i < qtd_particulas; i++)
-                {
-                    particles[i].atualizarVelocidade(global_best_position);
-                    particles[i].atualizarPosicao();
-                    #pragma omp atomic
-                    ++ls_counter;
-                    insertion(particles[i]);
-                    exchange(particles[i]);
-                    twoOPTMachine(particles[i]);
-                    twoSwapMachine(particles[i]);
-                }
-            } else { 
-                #pragma omp parallel for
-                for (int i = 0; i < qtd_particulas; i++)
-                {
-                    particles[i].atualizarVelocidade(global_best_position);
-                    particles[i].atualizarPosicao();
-                    /*bool debugs = false;
-                    vector <vector <int> > tempTesteSol = decode(particles[i].best_position,debugs);
-                    vector <double> tempSolRecode = recode(tempTesteSol,debugs);
-                    vector <vector <int> > redecodedSol =decode(tempSolRecode,debugs);
-                    if(!comparaMatrizes(tempTesteSol,redecodedSol)){
-                        cout << "ERRO FATAL NA RECODIFICAÇÃO" << endl;
-                        exit(0);
-                    }*/
-                }
+
+            //Movimenta a particula
+            #pragma omp parallel for
+            for (int i = 0; i < qtd_particulas; i++)
+            {
+                particles[i].atualizarVelocidade(global_best_position);
+                particles[i].atualizarPosicao();
             }
 
             if(USING_LS){
-                //Selciona 5% das particulas
-                int qtd_particulas_ls = qtd_particulas * 0.05;
-                shuffleVec(posicoes_particulas);
+                //Elite mode
+                if(LS_MODE == "ELITE"){
+                    //Vetor de pair que contem a posição no first e o fitness no second
+                    vector <pair <int, double>> particulas_e_fintess;
+                    for (int i = 0 ; i < qtd_particulas ; i++){
+                        particulas_e_fintess.push_back(pair <int,double> (i,particles[i].fitness));
+                    }
 
-                #pragma omp parallel for
-                for (int i = 0; i < qtd_particulas_ls; i++){
-                    insertion(particles[i]);
-                    twoSwap(particles[i]);
+                    //Ordena o vetor
+                    sort(particulas_e_fintess.begin(), particulas_e_fintess.end(),sortBySecondDouble);
+                    int qtd_particulas_ls = qtd_particulas * 0.05;
+
+                    #pragma omp parallel for
+                    for (int i = 0; i < qtd_particulas_ls; i++){
+                        insertion(particles[particulas_e_fintess[i].first]);
+                        twoSwap(particles[particulas_e_fintess[i].first]);
+                    }
+                    ls_counter += qtd_particulas_ls;
+                } else if(LS_MODE == "NORMAL"){
+                    //Selciona 5% das particulas
+                    int qtd_particulas_ls = qtd_particulas * 0.05;
+                    shuffleVec(posicoes_particulas);
+
+                    #pragma omp parallel for
+                    for (int i = 0; i < qtd_particulas_ls; i++){
+                        insertion(particles[i]);
+                        twoSwap(particles[i]);
+                    }
+                    ls_counter += qtd_particulas_ls;
+                } else{
+                    cout << "Falha de codigo, busca local está ligada mas não equivale a nenhum dos modos" << endl;
                 }
-                ls_counter += qtd_particulas_ls;
             }
             
             //crossOver(particles);
@@ -168,11 +169,6 @@ public:
             for (int i = 0; i < qtd_particulas; i++) {
                 //Adicionar a quantidade de melhoras na melhor global baseado na busca local
                 if (particles[i].best_fitness < global_best_fitness) {
-                    if(USING_LS){
-                        //ls_counter++;
-                        //insertion(particles[i]);
-                        //exchange(particles[i]);
-                    }
                     ls_qtd_melhora_global++;
                     global_best_position = particles[i].best_position;
                     global_best_fitness = particles[i].best_fitness;
@@ -247,9 +243,9 @@ public:
         }*/
 
         //media_melhora_twoapt = media_melhora_twoapt/((qtd_particulas*0.1)*pso_qtd_int);
-        //media_melhora_twoswap = media_melhora_twoswap/((qtd_particulas*0.1)*pso_qtd_int);
+        media_melhora_twoswap = media_melhora_twoswap/((qtd_particulas*0.1)*pso_qtd_int);
         media_melhora_insertion = media_melhora_insertion/ls_counter;
-        media_melhora_exchange = media_melhora_exchange/ls_counter;
+        //media_melhora_exchange = media_melhora_exchange/ls_counter;
 
         return bestParcticle;
     }

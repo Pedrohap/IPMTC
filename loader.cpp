@@ -37,6 +37,9 @@ const int EXECUCOES = 5;
 //Se vai usar ou não busca local
 const bool USING_LS = true;
 
+//Tipo de Busca local "ELITE" ou "NORMAL"
+const string LS_MODE = "ELITE";
+
 //Nome da pasta principal que carregara as intacias
 //const string PASTA_PRINCIPAL = "5% Test SmallJobs with some LargerJobs";
 const string PASTA_PRINCIPAL = "5% Test SmallJobs";
@@ -255,7 +258,7 @@ void processFile(const fs::path& filePath) {
             }
 
             ofstream resultData("solucoes/resultPSO.csv", ios::app);
-            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << val_sol_inicial << "|"<< pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << media_melhora_insertion <<"|" << media_melhora_exchange <<"|" << ls_qtd_melhora_global << "|" << duration_tempo_total.count() << endl;
+            resultData << fullFilePath[2] << "_" << exec << "|" << bestSolution.fitness << "|" << val_sol_inicial << "|"<< pso_qtd_int << "|" << pso_int_bg_final << "|" << pso_qtd_bg <<"|" << media_melhora_insertion <<"|" << media_melhora_twoswap <<"|" << ls_qtd_melhora_global << "|" << duration_tempo_total.count() << endl;
 
             resultData.close();
 
@@ -316,7 +319,7 @@ int main (){
                 fs::create_directory("solucoes");
             }
             ofstream resultData("solucoes/resultPSO.csv");
-            resultData << "NOME_INSTANCIA|MAKESPAN|MELHOR_SOLUCAO_INICIAL|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_INSERION|MEDIA_MELHORA_EXCHANGE|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
+            resultData << "NOME_INSTANCIA|MAKESPAN|MELHOR_SOLUCAO_INICIAL|QTD_ITERACOES|INTER_MELHOR_GLOBAL|QTD_ALTER_MELHOR_GLOBAL|MEDIA_MELHORA_INSERTION|MEDIA_MELHORA_TWOSWAP|QTD_MELHORAS_LS_MELHOR_GLOBAL|TEMPO_EXEC\n";
             resultData.close();
         } 
 
